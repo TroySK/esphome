@@ -126,6 +126,7 @@ namespace esphome
                 if (len > 5 && packetData[2] == CON_01 && packetData[3] == CMD_INIT && packetData[len - 2] != 0xf5)
                 {
                     ESP_LOGI(TAG, "WE ARE IN BUSINESS");
+                    this->status_text_sensor_->publish_state("NA");
                     _d = false;
                     return;
                 }
@@ -177,8 +178,29 @@ namespace esphome
                             this->heart_rate_sensor_->publish_state(data[0]);
                         }
                     }
-                    else if (
-                        true || (con == 0x01 && cmd == 0x01) // 1
+                    
+                    if (con == 0x02 && cmd == 0xA8 && data[0] > 0)
+                    {
+                        if (this->status_text_sensor_ != nullptr)
+                        {
+                            switch (data[0])
+                            {
+                            case 1:
+                                this->status_text_sensor_->publish_state("fall");
+                                break;
+                            case 2:
+                                this->status_text_sensor_->publish_state("sleep");
+                                break;
+                            default:
+                                this->status_text_sensor_->publish_state("error");
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (
+                        false 
+                        || (con == 0x01 && cmd == 0x01) // 1
                         || (con == 0x07 && cmd == 0x07)      // 1
                         || (con == 0x80 && cmd == 0x02)      // 1
                         || (con == 0x80 && cmd == 0x03)      // 1

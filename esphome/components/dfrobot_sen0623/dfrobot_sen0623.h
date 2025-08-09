@@ -7,6 +7,10 @@
 #include "esphome/components/sensor/sensor.h"
 #endif
 
+#ifdef USE_TEXT_SENSOR
+#include "esphome/components/text_sensor/text_sensor.h"
+#endif
+
 #ifdef USE_BINARY_SENSOR
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #endif
@@ -42,6 +46,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public Component {
 
     // sensor
     void set_heart_rate_sensor(sensor::Sensor *rate_sensor) { heart_rate_sensor_ = rate_sensor; }
+    // text sensor 
+    void set_status_text_sensor(text_sensor::TextSensor *status_text_sensor) { status_text_sensor_ = status_text_sensor; }
     // binary_sensor
     void set_motion_binary_sensor(binary_sensor::BinarySensor *motion_sensor) { motion_sensor_ = motion_sensor; }
     // button
@@ -58,6 +64,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public Component {
   protected:
     sensor::Sensor *heart_rate_sensor_{nullptr};
     binary_sensor::BinarySensor *motion_sensor_{nullptr};
+
+    text_sensor::TextSensor *status_text_sensor_{nullptr};
 
     button::Button *reset_button_{nullptr};
 };
