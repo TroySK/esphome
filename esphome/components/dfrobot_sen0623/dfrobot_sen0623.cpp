@@ -36,6 +36,7 @@ namespace esphome
             data[0] = {0x0f};
             this->forge_packet(operation.first, operation.second, data, 1);
             // If i request something, should i wait for response?
+
         }
 
         bool _d = true;
@@ -119,6 +120,75 @@ namespace esphome
             return (uint8_t)len;
         }
 
+        uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation) {
+            uint8_t ths = 150;
+            while(ths > 0) {
+                //ESP_LOGI(TAG, "%s", ths);
+                uint8_t packetData[100]; // adjust size as needed
+                uint8_t len = this->read_packet(packetData);
+
+                if(this->process_packet(packetData, len)){
+                    ths--;
+                    if(packetData[2] == operation.first && packetData[3] == operation.second) {
+                        return packetData[6];
+                    } 
+                }
+
+            }
+            return 0xf5;
+        }
+
+        bool DfrobotSen0623Component::process_packet(uint8_t *packetData, size_t len)
+        {
+            // Process only valid packets
+            if (len > 5)
+            {
+                uint8_t dataLen = ((uint16_t)packetData[4] << 8) | packetData[5];
+                uint8_t csum = 0;
+                for (uint8_t i = 0; i < 6 + dataLen; i++)
+                {
+                    csum += packetData[i];
+                }
+                csum = csum & 0xff;
+                if (packetData[0] == 0x53 && packetData[1] == 0x59 && packetData[len - 2] == 0x54 && packetData[len - 1] == 0x43 && csum == packetData[len - 3])
+                {
+                    uint8_t data[dataLen];
+                    for (uint8_t i = 0; i < dataLen; i++)
+                    {
+                        data[i] = packetData[6 + i];
+                    }
+
+                    std::pair<uint8_t, uint8_t> operation = {packetData[2], packetData[3]};
+
+                    if (operation == OP_REQ_HEART_RATE) {
+                        if (data[0] > 0 && this->heart_rate_sensor_ != nullptr) {
+                            this->heart_rate_sensor_->publish_state(data[0]);
+                        }
+                    }
+
+                    if (operation == OP_REQ_MODE) {
+                        if (this->status_text_sensor_ != nullptr)
+                        {
+                            switch (data[0])
+                            {
+                            case 1:
+                                this->status_text_sensor_->publish_state("fall");
+                                break;
+                            case 2:
+                                this->status_text_sensor_->publish_state("sleep");
+                                break;
+                            default:
+                                this->status_text_sensor_->publish_state("error");
+                                break;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
         void DfrobotSen0623Component::print_data(std::string tag, const uint8_t *bytes, size_t len)
         {
             std::string out;
@@ -144,21 +214,16 @@ namespace esphome
 
             // this->motion_sensor_->publish_state(1);
 
-            uint8_t packetData[100];
-            bool run = true;
-            while (run)
-            {
-                uint8_t len = this->read_packet(packetData);
-
-                if (len > 5 && packetData[2] == OP_INIT.first && packetData[3] == OP_INIT.second && packetData[len - 2] != 0xf5)
-                {
-                    ESP_LOGI(TAG, "WE ARE IN BUSINESS");
-                    this->status_text_sensor_->publish_state("NA");
-                    _d = false;
-                    return;
-                }
+            uint8_t result = this->wait_for_packet(OP_INIT);
+            if (result != 0xf5) {
+                ESP_LOGI(TAG, "WE ARE IN BUSINESS");
+                this->status_text_sensor_->publish_state("NA");
+                this->request(OP_REQ_MODE);
+                this->wait_for_packet(OP_REQ_MODE);
+                _d = false;
+            } else {
+                this->mark_failed();
             }
-            this->mark_failed();
         }
 
         // getData(uint8_t con, uint8_t cmd, uint16_t len, uint8_t *senData, uint8_t *retData)
@@ -175,6 +240,8 @@ namespace esphome
             uint8_t packetData[100]; // adjust size as needed
             uint8_t len = this->read_packet(packetData);
 
+            this->process_packet(packetData, len);
+            return;
             if (len > 5)
             {
                 // this->print_data("**", packetData, len);
