@@ -2,6 +2,16 @@
 #include "esphome/core/log.h"
 
 #include "esphome/core/helpers.h"
+
+
+std::pair<uint8_t, uint8_t> OP_RST_SENSOR = {0x01, 0x02};
+std::pair<uint8_t, uint8_t> OP_INIT = {0x01, 0x83};
+std::pair<uint8_t, uint8_t> OP_REQ_MODE = {0x02, 0xA8};
+std::pair<uint8_t, uint8_t> OP_REQ_HEART_RATE = {0x85, 0x82};
+std::pair<uint8_t, uint8_t> OP_SET_MODE = {0x85, 0x82};
+uint8_t MODE_SLEEP = 0x02;
+uint8_t MODE_FALL = 0x01;
+
 namespace esphome
 {
     namespace dfrobot_sen0623
@@ -15,38 +25,17 @@ namespace esphome
         {
             // uint8_t payload[1] = {0x0f};
             // this->forge_packet(0x01, 0x02, payload, sizeof(payload));
-            this->request(2);
-            delay(1000);
-            this->request(5);
+            this->request(OP_REQ_MODE);
+            //delay(2000);
+            //this->request(4);
         }
 
-        void DfrobotSen0623Component::request(uint8_t operation)
+        void DfrobotSen0623Component::request(std::pair<uint8_t, uint8_t> operation)
         {
             uint8_t data[1];
             data[0] = {0x0f};
-            switch (operation)
-            {
-            case 0: // Sensor reset (startup?)
-                this->forge_packet(0x01, 0x02, data, 1);
-                break;            
-            case OP_INIT:
-                this->forge_packet(CON_01, CMD_INIT, data, 1);
-                break;
-            case OP_REQ_MODE:
-                this->forge_packet(0x02, 0xA8, data, 1);
-                break;
-            case 3: // request heart rate
-                this->forge_packet(0x85, 0x82, data, 1);
-                break;
-            case 4: // Sleep mode
-                data[0] = 0x02;
-                this->forge_packet(0x02, 0xA8, data, 1);
-                break;
-            case 5: // Falling mode
-                data[0] = 0x01;
-                this->forge_packet(0x02, 0xA8, data, 1);
-                break;
-            }
+            this->forge_packet(operation.first, operation.second, data, 1);
+            // If i request something, should i wait for response?
         }
 
         bool _d = true;
@@ -161,7 +150,7 @@ namespace esphome
             {
                 uint8_t len = this->read_packet(packetData);
 
-                if (len > 5 && packetData[2] == CON_01 && packetData[3] == CMD_INIT && packetData[len - 2] != 0xf5)
+                if (len > 5 && packetData[2] == OP_INIT.first && packetData[3] == OP_INIT.second && packetData[len - 2] != 0xf5)
                 {
                     ESP_LOGI(TAG, "WE ARE IN BUSINESS");
                     this->status_text_sensor_->publish_state("NA");
@@ -177,9 +166,9 @@ namespace esphome
         {
             if (_switch_request_rate)
             {
-                this->request(3);
+                this->request(OP_REQ_HEART_RATE);
             }
-            }
+        }
 
         void DfrobotSen0623Component::loop()
         {

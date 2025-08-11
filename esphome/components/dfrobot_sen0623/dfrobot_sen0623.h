@@ -26,12 +26,6 @@
 namespace esphome {
 namespace dfrobot_sen0623 {
 
-#define OP_INIT 0x01
-#define OP_REQ_MODE 0x02
-
-#define CON_01 0x01
-#define CMD_INIT 0x83
-
 class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent {
 #ifdef USE_SWITCH
   SUB_SWITCH(request_rate)
@@ -40,7 +34,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
 
 
   public:
-    void request(uint8_t operation);
+    void request(std::pair<uint8_t, uint8_t> operation);
 
     void forge_packet(uint8_t control, uint8_t command, uint8_t *senData, uint16_t senLen);
 
@@ -65,6 +59,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
 
     void setup() override;
     void loop() override;
+    void update() override;
     void dump_config() override;
   protected:
     sensor::Sensor *heart_rate_sensor_{nullptr};
