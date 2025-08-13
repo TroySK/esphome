@@ -84,6 +84,9 @@ namespace esphome
 
         uint8_t DfrobotSen0623Component::read_packet(uint8_t *packetData)
         {
+            if (!this->available()) {
+                return 0;
+            }
             std::vector<uint8_t> buffer;
             uint8_t byte;
 
@@ -119,7 +122,7 @@ namespace esphome
         }
 
         uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation) {
-            uint8_t ths = 150;
+            uint8_t ths = 500;
             while(ths > 0) {
                 //ESP_LOGI(TAG, "%s", ths);
                 uint8_t packetData[100]; // adjust size as needed
@@ -133,6 +136,7 @@ namespace esphome
                 }
 
             }
+            ESP_LOGI(TAG, "WAIT FAILED");
             return 0xf5;
         }
 
@@ -217,12 +221,13 @@ namespace esphome
                     }
                     else
                     {
-                        ESP_LOGI(TAG, "-----");
-                        ESP_LOGI(TAG, "%02X %02X (%i)", operation.first, operation.second, dataLen);
+                        //ESP_LOGI(TAG, "-----");
+                        //ESP_LOGI(TAG, "%02X %02X (%i)", operation.first, operation.second, dataLen);
                         // ESP_LOGI(TAG, "CHECK_I: %02X", packetData[len-3]);
                         // ESP_LOGI(TAG, "CHECK_C: %02X", csum);
-                        this->print_data("**", data, dataLen);
-                        ESP_LOGI(TAG, "-----");
+                       // this->print_data("**", data, dataLen);
+                        //ESP_LOGI(TAG, "-----");
+                        ;
                     }
                 }
                 return true;
@@ -243,7 +248,22 @@ namespace esphome
                 sprintf(buf, "%02X", bytes[i]);
                 out += buf;
             }
+            //ESP_LOGI(TAG, "%s %s", tag.c_str(), out.c_str());
+
+            out = "";
+            for (size_t i = 0; i < len; i++)
+            {
+                if (i > 2)
+                {
+                    out += " ";
+                }
+                if (i > 1 && i < len - 3 && i != 4 && i !=5) {
+                  sprintf(buf, "%02X", bytes[i]);
+                  out += buf;
+                }
+            }
             ESP_LOGI(TAG, "%s %s", tag.c_str(), out.c_str());
+            
         }
 
         void DfrobotSen0623Component::setup()
