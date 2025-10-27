@@ -20,6 +20,14 @@ Sen0623ResetButton = dfrobot_sen0623_ns.class_(
     "Sen0623ResetButton", DfrobotSen0623Button
 )
 
+Sen0623FallModeButton = dfrobot_sen0623_ns.class_(
+    "Sen0623FallModeButton", DfrobotSen0623Button
+)
+
+Sen0623SleepModeButton = dfrobot_sen0623_ns.class_(
+    "Sen0623SleepModeButton", DfrobotSen0623Button
+)
+
 
 def _button_schema(class_: MockObjClass) -> cv.Schema:
     return (
@@ -41,6 +49,8 @@ def _button_schema(class_: MockObjClass) -> cv.Schema:
 CONFIG_SCHEMA = cv.typed_schema(
     {
         "reset": _button_schema(Sen0623ResetButton),
+        "mode_fall": _button_schema(Sen0623FallModeButton),
+        "mode_sleep": _button_schema(Sen0623SleepModeButton),
     }
 )
 
