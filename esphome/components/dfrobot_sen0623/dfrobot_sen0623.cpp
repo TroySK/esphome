@@ -35,6 +35,22 @@ namespace esphome
             //this->request(4);
         }
 
+        void DfrobotSen0623Component::cmd_mode_fall()
+        {
+            uint8_t data[1];
+            data[0] = {MODE_FALL};
+            this->forge_packet(OP_SET_MODE.first, OP_SET_MODE.second, data, 1);
+            this->request(OP_REQ_MODE);
+        }
+
+        void DfrobotSen0623Component::cmd_mode_sleep()
+        {
+            uint8_t data[1];
+            data[0] = {MODE_SLEEP};
+            this->forge_packet(OP_SET_MODE.first, OP_SET_MODE.second, data, 1);
+            this->request(OP_REQ_MODE);
+        }
+
         void DfrobotSen0623Component::request(std::pair<uint8_t, uint8_t> operation)
         {
             uint8_t data[1];

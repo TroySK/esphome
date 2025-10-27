@@ -15,5 +15,15 @@ class Sen0623ResetButton : public DfrobotSen0623Button {
   void press_action() override;
 };
 
+class Sen0623FallModeButton : public DfrobotSen0623Button {
+ public:
+  void press_action() override;
+};
+
+class Sen0623SleepModeButton : public DfrobotSen0623Button {
+ public:
+  void press_action() override;
+};
+
 }  // namespace dfrobot_sen0623
 }  // namespace esphome
