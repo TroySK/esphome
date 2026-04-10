@@ -13,10 +13,42 @@
 
 ### Phase 1: Critical Bugs
 
-- [ ] 1.1 Fix crash bug - null pointer dereference when text sensors not configured
+- [x] 1.1 Fix crash bug - null pointer dereference when text sensors not configured
   - Location: `dfrobot_sen0623.cpp:328-329`
   - Issue: `status_text_sensor_` and `movement_text_sensor_` accessed without null check
   - Fix: Add null checks before publish_state calls
+
+### Phase 8: Additional Bugs Found During Review
+
+- [ ] 8.1 Duplicate operation code conflict
+  - Location: `dfrobot_sen0623.cpp:8` and `dfrobot_sen0623.cpp:20`
+  - Issue: `OP_INIT = {0x01, 0x83}` conflicts with `OP_REQ_HP_LED = {0x01, 0x83}` - same code used for different operations
+  - Fix: Delete duplicate OP_INIT which is at line 8 and use only once at line 20
+
+- [ ] 8.2 Missing parentheses in bit shift operations
+  - Location: Multiple locations in `dfrobot_sen0623.cpp`
+  - Issue: `data[0] << 8 | data[1]` should be `(data[0] << 8) | data[1]` for proper precedence
+  - Fix: Add parentheses around bit shifts
+
+- [ ] 8.3 set_switch_hp_led uses wrong switch pointer
+  - Location: `dfrobot_sen0623.cpp:949`
+  - Issue: Uses `request_rate_switch_` instead of `hp_led_switch_`
+  - Fix: Replace with correct `hp_led_switch_`
+
+- [ ] 8.4 set_switch_hp_led missing null check
+  - Location: `dfrobot_sen0623.cpp:947-964`
+  - Issue: No null check before `this->hp_led_switch_->publish_state(val)`
+  - Fix: Add null check like other methods
+
+- [ ] 8.5 set_switch_request_rate uses wrong switch pointer
+  - Location: `dfrobot_sen0623.cpp:941-944`
+  - Issue: Uses `_switch_request_rate` but should use `request_rate_switch_`
+  - Fix: Use correct switch variable
+
+- [ ] 8.6 install_angle_y and install_angle_z sensors not handled in process_packet
+  - Location: `dfrobot_sen0623.cpp:647-651`
+  - Issue: Only x angle is handled, y and z missing
+  - Fix: Add handling for y and z angles
 
 ### Phase 2: Configuration Sync
 

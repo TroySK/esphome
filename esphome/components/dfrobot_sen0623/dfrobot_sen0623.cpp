@@ -17,7 +17,6 @@ std::pair<uint8_t, uint8_t> OP_SET_MODE = {0x02, 0x08};
 uint8_t MODE_SLEEP = 0x02;
 uint8_t MODE_FALL = 0x01;
 
-std::pair<uint8_t, uint8_t> OP_REQ_HP_LED = {0x01, 0x83};
 std::pair<uint8_t, uint8_t> OP_REQ_FALL_LED = {0x01, 0x84};
 
 std::pair<uint8_t, uint8_t> OP_SET_INSTALL_ANGLE = {0x06, 0x01};
@@ -619,7 +618,7 @@ namespace esphome
                     } else 
                     if (operation == OP_REQ_HUMAN_DISTANCE) {
                         if (this->human_distance_sensor_ != nullptr) {
-                            this->human_distance_sensor_->publish_state(data[0] << 8 | data[1]);
+                            this->human_distance_sensor_->publish_state((data[0] << 8) | data[1]);
                         }
                     } else 
                     if (operation == OP_REQ_HUMAN_MOVE_RANGE) {
@@ -648,6 +647,14 @@ namespace esphome
                         if (this->install_angle_x_sensor_ != nullptr) {
                             int16_t x = (int16_t)((data[0] << 8) | data[1]);
                             this->install_angle_x_sensor_->publish_state(x);
+                        }
+                        if (this->install_angle_y_sensor_ != nullptr) {
+                            int16_t y = (int16_t)((data[2] << 8) | data[3]);
+                            this->install_angle_y_sensor_->publish_state(y);
+                        }
+                        if (this->install_angle_z_sensor_ != nullptr) {
+                            int16_t z = (int16_t)((data[4] << 8) | data[5]);
+                            this->install_angle_z_sensor_->publish_state(z);
                         }
                     } else
                     if (operation == OP_REQ_INSTALL_HEIGHT || operation == OP_AUTO_MEASURE_HEIGHT) {
@@ -946,7 +953,7 @@ namespace esphome
 
         void DfrobotSen0623Component::set_switch_hp_led(bool val)
         {
-            if (this->request_rate_switch_ != nullptr)
+            if (this->hp_led_switch_ != nullptr)
             {
                 this->hp_led_switch_->publish_state(val);
 
@@ -960,7 +967,6 @@ namespace esphome
                     data[0] = 0;
                 }
                 this->forge_packet(0x01, 0x03, data, sizeof(data)); // HP
-                // this->forge_packet(0x01, 0x04, data, sizeof(data)); // FALL
             }
         }
 
