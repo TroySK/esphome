@@ -17,6 +17,41 @@ std::pair<uint8_t, uint8_t> OP_SET_MODE = {0x02, 0x08};
 uint8_t MODE_SLEEP = 0x02;
 uint8_t MODE_FALL = 0x01;
 
+std::pair<uint8_t, uint8_t> OP_REQ_HP_LED = {0x01, 0x83};
+std::pair<uint8_t, uint8_t> OP_REQ_FALL_LED = {0x01, 0x84};
+
+std::pair<uint8_t, uint8_t> OP_SET_INSTALL_ANGLE = {0x06, 0x01};
+std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_ANGLE = {0x06, 0x81};
+std::pair<uint8_t, uint8_t> OP_SET_INSTALL_HEIGHT = {0x06, 0x02};
+std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_HEIGHT = {0x06, 0x82};
+std::pair<uint8_t, uint8_t> OP_AUTO_MEASURE_HEIGHT = {0x83, 0x90};
+
+std::pair<uint8_t, uint8_t> OP_REQ_FALL_STATE = {0x83, 0x81};
+std::pair<uint8_t, uint8_t> OP_REQ_STATIC_RESIDENCY_STATE = {0x83, 0x85};
+std::pair<uint8_t, uint8_t> OP_REQ_STATIC_RESIDENCY_TIME = {0x83, 0x8A};
+std::pair<uint8_t, uint8_t> OP_REQ_STATIC_RESIDENCY_SWITCH = {0x83, 0x8B};
+std::pair<uint8_t, uint8_t> OP_REQ_FALL_TIME = {0x83, 0x8C};
+std::pair<uint8_t, uint8_t> OP_REQ_FALL_SENSITIVITY = {0x83, 0x8D};
+std::pair<uint8_t, uint8_t> OP_REQ_TRACK = {0x83, 0x8E};
+std::pair<uint8_t, uint8_t> OP_REQ_ACCUMULATED_HEIGHT_DURATION = {0x83, 0x8F};
+std::pair<uint8_t, uint8_t> OP_REQ_FALL_BREAK_HEIGHT = {0x83, 0x91};
+std::pair<uint8_t, uint8_t> OP_REQ_TRACK_FREQUENCY = {0x83, 0x93};
+std::pair<uint8_t, uint8_t> OP_REQ_TRAJECTORY_SWITCH = {0x83, 0x94};
+std::pair<uint8_t, uint8_t> OP_REQ_HEIGHT_RATIO_SWITCH = {0x83, 0x95};
+
+std::pair<uint8_t, uint8_t> OP_SET_FALL_SENSITIVITY = {0x83, 0x0D};
+std::pair<uint8_t, uint8_t> OP_SET_RESIDENCE_TIME = {0x83, 0x0A};
+std::pair<uint8_t, uint8_t> OP_SET_RESIDENCE_SWITCH = {0x83, 0x0B};
+std::pair<uint8_t, uint8_t> OP_SET_ALT_TIME = {0x83, 0x0F};
+std::pair<uint8_t, uint8_t> OP_SET_FALL_TIME = {0x83, 0x0C};
+std::pair<uint8_t, uint8_t> OP_SET_FALL_BREAK_HEIGHT = {0x83, 0x11};
+std::pair<uint8_t, uint8_t> OP_SET_REPORT_FREQUENCY = {0x83, 0x13};
+std::pair<uint8_t, uint8_t> OP_SET_REPORT_SWITCH = {0x83, 0x14};
+std::pair<uint8_t, uint8_t> OP_SET_HEIGHT_RATIO_SWITCH = {0x83, 0x15};
+
+std::pair<uint8_t, uint8_t> OP_REQ_UNMANNED_TIME = {0x80, 0x92};
+std::pair<uint8_t, uint8_t> OP_SET_UNMANNED_TIME = {0x80, 0x12};
+
 namespace esphome
 {
     namespace dfrobot_sen0623
@@ -49,6 +84,187 @@ namespace esphome
             data[0] = {MODE_SLEEP};
             this->forge_packet(OP_SET_MODE.first, OP_SET_MODE.second, data, 1);
             this->request(OP_REQ_MODE);
+        }
+
+        void DfrobotSen0623Component::cmd_set_install_angle(int16_t x, int16_t y, int16_t z)
+        {
+            uint8_t data[6];
+            data[0] = (x >> 8) & 0xff;
+            data[1] = x & 0xff;
+            data[2] = (y >> 8) & 0xff;
+            data[3] = y & 0xff;
+            data[4] = (z >> 8) & 0xff;
+            data[5] = z & 0xff;
+            this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
+            this->request_install_angle();
+        }
+
+        void DfrobotSen0623Component::cmd_set_install_height(uint16_t height)
+        {
+            uint8_t data[2];
+            data[0] = (height >> 8) & 0xff;
+            data[1] = height & 0xff;
+            this->forge_packet(OP_SET_INSTALL_HEIGHT.first, OP_SET_INSTALL_HEIGHT.second, data, 2);
+            this->request_install_height();
+        }
+
+        void DfrobotSen0623Component::cmd_auto_measure_height()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_AUTO_MEASURE_HEIGHT.first, OP_AUTO_MEASURE_HEIGHT.second, data, 1);
+            this->request_auto_measure_height();
+        }
+
+        void DfrobotSen0623Component::request_install_angle()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_INSTALL_ANGLE.first, OP_REQ_INSTALL_ANGLE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_install_height()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_INSTALL_HEIGHT.first, OP_REQ_INSTALL_HEIGHT.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_auto_measure_height()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_AUTO_MEASURE_HEIGHT.first, OP_AUTO_MEASURE_HEIGHT.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_fall_sensitivity(uint8_t sensitivity)
+        {
+            uint8_t data[1];
+            data[0] = sensitivity;
+            this->forge_packet(OP_SET_FALL_SENSITIVITY.first, OP_SET_FALL_SENSITIVITY.second, data, 1);
+            this->request_fall_sensitivity();
+        }
+
+        void DfrobotSen0623Component::cmd_set_fall_break_height(uint16_t height)
+        {
+            uint8_t data[2];
+            data[0] = (height >> 8) & 0xff;
+            data[1] = height & 0xff;
+            this->forge_packet(OP_SET_FALL_BREAK_HEIGHT.first, OP_SET_FALL_BREAK_HEIGHT.second, data, 2);
+            this->request_fall_break_height();
+        }
+
+        void DfrobotSen0623Component::cmd_set_residence_time(uint32_t seconds)
+        {
+            uint8_t data[4];
+            data[0] = (seconds >> 24) & 0xff;
+            data[1] = (seconds >> 16) & 0xff;
+            data[2] = (seconds >> 8) & 0xff;
+            data[3] = seconds & 0xff;
+            this->forge_packet(OP_SET_RESIDENCE_TIME.first, OP_SET_RESIDENCE_TIME.second, data, 4);
+        }
+
+        void DfrobotSen0623Component::cmd_set_residence_switch(bool enabled)
+        {
+            uint8_t data[1];
+            data[0] = enabled ? 1 : 0;
+            this->forge_packet(OP_SET_RESIDENCE_SWITCH.first, OP_SET_RESIDENCE_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_alt_time(uint32_t seconds)
+        {
+            uint8_t data[4];
+            data[0] = (seconds >> 24) & 0xff;
+            data[1] = (seconds >> 16) & 0xff;
+            data[2] = (seconds >> 8) & 0xff;
+            data[3] = seconds & 0xff;
+            this->forge_packet(OP_SET_ALT_TIME.first, OP_SET_ALT_TIME.second, data, 4);
+        }
+
+        void DfrobotSen0623Component::cmd_set_report_frequency(uint32_t ms)
+        {
+            uint8_t data[4];
+            data[0] = (ms >> 24) & 0xff;
+            data[1] = (ms >> 16) & 0xff;
+            data[2] = (ms >> 8) & 0xff;
+            data[3] = ms & 0xff;
+            this->forge_packet(OP_SET_REPORT_FREQUENCY.first, OP_SET_REPORT_FREQUENCY.second, data, 4);
+        }
+
+        void DfrobotSen0623Component::cmd_set_report_switch(bool enabled)
+        {
+            uint8_t data[1];
+            data[0] = enabled ? 1 : 0;
+            this->forge_packet(OP_SET_REPORT_SWITCH.first, OP_SET_REPORT_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_height_ratio_switch(bool enabled)
+        {
+            uint8_t data[1];
+            data[0] = enabled ? 1 : 0;
+            this->forge_packet(OP_SET_HEIGHT_RATIO_SWITCH.first, OP_SET_HEIGHT_RATIO_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_fall_state()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_FALL_STATE.first, OP_REQ_FALL_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_static_residency_state()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_STATIC_RESIDENCY_STATE.first, OP_REQ_STATIC_RESIDENCY_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_static_residency_time()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_STATIC_RESIDENCY_TIME.first, OP_REQ_STATIC_RESIDENCY_TIME.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_fall_time()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_FALL_TIME.first, OP_REQ_FALL_TIME.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_fall_sensitivity()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_FALL_SENSITIVITY.first, OP_REQ_FALL_SENSITIVITY.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_fall_break_height()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_FALL_BREAK_HEIGHT.first, OP_REQ_FALL_BREAK_HEIGHT.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_height_ratio_switch()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_HEIGHT_RATIO_SWITCH.first, OP_REQ_HEIGHT_RATIO_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_track()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_TRACK.first, OP_REQ_TRACK.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_track_frequency()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_TRACK_FREQUENCY.first, OP_REQ_TRACK_FREQUENCY.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_unmanned_time()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_UNMANNED_TIME.first, OP_REQ_UNMANNED_TIME.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_accumulated_height_duration()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_ACCUMULATED_HEIGHT_DURATION.first, OP_REQ_ACCUMULATED_HEIGHT_DURATION.second, data, 1);
         }
 
         void DfrobotSen0623Component::request(std::pair<uint8_t, uint8_t> operation)
@@ -253,7 +469,73 @@ namespace esphome
                                 break;
                             }
                         }
-                    } else 
+                    } else
+                    if (operation == OP_REQ_INSTALL_ANGLE) {
+                        if (this->install_angle_x_sensor_ != nullptr) {
+                            int16_t x = (int16_t)((data[0] << 8) | data[1]);
+                            this->install_angle_x_sensor_->publish_state(x);
+                        }
+                    } else
+                    if (operation == OP_REQ_INSTALL_HEIGHT || operation == OP_AUTO_MEASURE_HEIGHT) {
+                        if (this->install_height_sensor_ != nullptr) {
+                            uint16_t h = (uint16_t)((data[0] << 8) | data[1]);
+                            this->install_height_sensor_->publish_state(h);
+                        }
+                    } else
+                    if (operation == OP_REQ_FALL_STATE) {
+                        if (this->fall_state_sensor_ != nullptr) {
+                            this->fall_state_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_STATIC_RESIDENCY_STATE || operation == OP_REQ_STATIC_RESIDENCY_SWITCH) {
+                        if (this->static_residency_sensor_ != nullptr) {
+                            this->static_residency_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_STATIC_RESIDENCY_TIME || operation == OP_REQ_FALL_TIME) {
+                        if (this->static_residency_time_sensor_ != nullptr) {
+                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            this->static_residency_time_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_FALL_SENSITIVITY) {
+                        if (this->fall_sensitivity_sensor_ != nullptr) {
+                            this->fall_sensitivity_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_FALL_BREAK_HEIGHT) {
+                        if (this->fall_break_height_sensor_ != nullptr) {
+                            uint16_t h = (uint16_t)((data[0] << 8) | data[1]);
+                            this->fall_break_height_sensor_->publish_state(h);
+                        }
+                    } else
+                    if (operation == OP_REQ_TRACK) {
+                        if (this->track_x_sensor_ != nullptr) {
+                            uint16_t x = (uint16_t)((data[0] << 8) | data[1]);
+                            this->track_x_sensor_->publish_state(x);
+                        }
+                        if (this->track_y_sensor_ != nullptr) {
+                            uint16_t y = (uint16_t)((data[2] << 8) | data[3]);
+                            this->track_y_sensor_->publish_state(y);
+                        }
+                    } else
+                    if (operation == OP_REQ_UNMANNED_TIME) {
+                        if (this->unmanned_time_sensor_ != nullptr) {
+                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            this->unmanned_time_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_ACCUMULATED_HEIGHT_DURATION) {
+                        if (this->accumulated_height_duration_sensor_ != nullptr) {
+                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            this->accumulated_height_duration_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_HEIGHT_RATIO_SWITCH || operation == OP_REQ_TRAJECTORY_SWITCH) {
+                        if (this->fall_status_text_sensor_ != nullptr) {
+                            this->fall_status_text_sensor_->publish_state(data[0] ? "enabled" : "disabled");
+                        }
+                    } else
                     if (
                         false 
                         || (operation.first == 0x01 && operation.second == 0x01) // 1
@@ -314,9 +596,6 @@ namespace esphome
             ESP_LOGI(TAG, "%s %s", tag.c_str(), out.c_str());
             
         }
-
-        std::pair<uint8_t, uint8_t> OP_REQ_HP_LED = {0x01, 0x83};
-        std::pair<uint8_t, uint8_t> OP_REQ_FALL_LED = {0x01, 0x84};
 
         void DfrobotSen0623Component::setup()
         {

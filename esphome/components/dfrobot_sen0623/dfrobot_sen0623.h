@@ -69,6 +69,37 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void cmd_mode_fall();
     void cmd_mode_sleep();
 
+    // fall mode - installation
+    void cmd_set_install_angle(int16_t x, int16_t y, int16_t z);
+    void cmd_set_install_height(uint16_t height);
+    void cmd_auto_measure_height();
+    void request_install_angle();
+    void request_install_height();
+    void request_auto_measure_height();
+
+    // fall mode - configuration
+    void cmd_set_fall_sensitivity(uint8_t sensitivity);
+    void cmd_set_fall_break_height(uint16_t height);
+    void cmd_set_residence_time(uint32_t seconds);
+    void cmd_set_residence_switch(bool enabled);
+    void cmd_set_alt_time(uint32_t seconds);
+    void cmd_set_report_frequency(uint32_t ms);
+    void cmd_set_report_switch(bool enabled);
+    void cmd_set_height_ratio_switch(bool enabled);
+
+    // fall mode - data queries
+    void request_fall_state();
+    void request_static_residency_state();
+    void request_static_residency_time();
+    void request_fall_time();
+    void request_fall_sensitivity();
+    void request_fall_break_height();
+    void request_height_ratio_switch();
+    void request_track();
+    void request_track_frequency();
+    void request_unmanned_time();
+    void request_accumulated_height_duration();
+
     void setup() override;
     void loop() override;
     void update() override;
@@ -87,6 +118,40 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     button::Button *reset_button_{nullptr};
     button::Button *mode_fall_button_{nullptr};
     button::Button *mode_sleep_button_{nullptr};
+
+    sensor::Sensor *install_angle_x_sensor_{nullptr};
+    sensor::Sensor *install_angle_y_sensor_{nullptr};
+    sensor::Sensor *install_angle_z_sensor_{nullptr};
+    sensor::Sensor *install_height_sensor_{nullptr};
+
+    sensor::Sensor *fall_state_sensor_{nullptr};
+    sensor::Sensor *static_residency_sensor_{nullptr};
+    sensor::Sensor *static_residency_time_sensor_{nullptr};
+    sensor::Sensor *fall_time_sensor_{nullptr};
+    sensor::Sensor *fall_sensitivity_sensor_{nullptr};
+    sensor::Sensor *fall_break_height_sensor_{nullptr};
+    sensor::Sensor *track_x_sensor_{nullptr};
+    sensor::Sensor *track_y_sensor_{nullptr};
+    sensor::Sensor *unmanned_time_sensor_{nullptr};
+    sensor::Sensor *accumulated_height_duration_sensor_{nullptr};
+
+    text_sensor::TextSensor *fall_status_text_sensor_{nullptr};
+
+    void set_fall_state_sensor(sensor::Sensor *s) { fall_state_sensor_ = s; }
+    void set_static_residency_sensor(sensor::Sensor *s) { static_residency_sensor_ = s; }
+    void set_static_residency_time_sensor(sensor::Sensor *s) { static_residency_time_sensor_ = s; }
+    void set_fall_time_sensor(sensor::Sensor *s) { fall_time_sensor_ = s; }
+    void set_fall_sensitivity_sensor(sensor::Sensor *s) { fall_sensitivity_sensor_ = s; }
+    void set_fall_break_height_sensor(sensor::Sensor *s) { fall_break_height_sensor_ = s; }
+    void set_track_x_sensor(sensor::Sensor *s) { track_x_sensor_ = s; }
+    void set_track_y_sensor(sensor::Sensor *s) { track_y_sensor_ = s; }
+    void set_unmanned_time_sensor(sensor::Sensor *s) { unmanned_time_sensor_ = s; }
+    void set_accumulated_height_duration_sensor(sensor::Sensor *s) { accumulated_height_duration_sensor_ = s; }
+    void set_install_angle_x_sensor(sensor::Sensor *s) { install_angle_x_sensor_ = s; }
+    void set_install_angle_y_sensor(sensor::Sensor *s) { install_angle_y_sensor_ = s; }
+    void set_install_angle_z_sensor(sensor::Sensor *s) { install_angle_z_sensor_ = s; }
+    void set_install_height_sensor(sensor::Sensor *s) { install_height_sensor_ = s; }
+    void set_fall_status_text_sensor(text_sensor::TextSensor *s) { fall_status_text_sensor_ = s; }
 };
 
 
