@@ -32,6 +32,14 @@
 ### Phase 7: Data Dump
 - [x] 7.1 Complete debug data dump
 
+### Phase 8: Additional Bugs Found During Review
+- [x] 8.1 Fix duplicate operation code conflict (OP_INIT = OP_REQ_HP_LED)
+- [x] 8.2 Fix missing parentheses in bit shift operations
+- [x] 8.3 Fix set_switch_hp_led wrong switch pointer
+- [x] 8.4 Fix set_switch_hp_led missing null check
+- [x] 8.5 Fix set_switch_request_rate wrong switch pointer
+- [x] 8.6 Fix install_angle_y and z sensors not handled
+
 ---
 
 ## Completed Tasks
@@ -44,3 +52,4 @@
 | 2026-04-10 | Initial | Switches: request_rate, hp_led |
 | 2026-04-10 | Initial | Mode switching commands |
 | 2026-04-10 | All tasks | All implementation tasks completed |
+| 2026-04-10 | Bug fixes | All bug fixes from code review |
