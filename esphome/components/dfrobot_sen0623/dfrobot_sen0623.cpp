@@ -325,8 +325,12 @@ namespace esphome
             uint8_t result = this->wait_for_packet(OP_INIT);
             if (result != 0xf5) {
                 ESP_LOGI(TAG, "WE ARE IN BUSINESS");
-                this->status_text_sensor_->publish_state("NA");
-                this->movement_text_sensor_->publish_state("NA");
+                if (this->status_text_sensor_ != nullptr) {
+                    this->status_text_sensor_->publish_state("NA");
+                }
+                if (this->movement_text_sensor_ != nullptr) {
+                    this->movement_text_sensor_->publish_state("NA");
+                }
                 // Request mode
                 this->request(OP_REQ_MODE);
                 this->wait_for_packet(OP_REQ_MODE);
