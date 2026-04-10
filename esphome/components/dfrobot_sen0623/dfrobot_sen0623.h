@@ -100,6 +100,34 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void request_unmanned_time();
     void request_accumulated_height_duration();
 
+    // sleep mode - configuration
+    void cmd_set_reporting_mode(uint8_t mode);
+    void cmd_set_abnormal_struggle(bool enabled);
+    void cmd_set_unattended_state(bool enabled);
+    void cmd_set_unattended_time(uint8_t minutes);
+    void cmd_set_sleep_deadline(uint8_t hours);
+
+    // sleep mode - data queries
+    void request_in_bed();
+    void request_sleep_state();
+    void request_wake_duration();
+    void request_light_sleep();
+    void request_deep_sleep();
+    void request_sleep_quality();
+    void request_reporting_mode();
+    void request_sleep_disturbances();
+    void request_sleep_quality_rating();
+    void request_abnormal_struggle();
+    void request_unattended_state();
+    void request_abnormal_struggle_switch();
+    void request_unattended_switch();
+    void request_unattended_time();
+    void request_sleep_deadline();
+    void request_breathe_state();
+    void request_breathe_value();
+    void request_sleep_composite();
+    void request_sleep_statistics();
+
     void setup() override;
     void loop() override;
     void update() override;
@@ -137,6 +165,21 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
 
     text_sensor::TextSensor *fall_status_text_sensor_{nullptr};
 
+    sensor::Sensor *in_bed_sensor_{nullptr};
+    sensor::Sensor *sleep_state_sensor_{nullptr};
+    sensor::Sensor *wake_duration_sensor_{nullptr};
+    sensor::Sensor *light_sleep_sensor_{nullptr};
+    sensor::Sensor *deep_sleep_sensor_{nullptr};
+    sensor::Sensor *sleep_quality_sensor_{nullptr};
+    sensor::Sensor *sleep_disturbances_sensor_{nullptr};
+    sensor::Sensor *sleep_quality_rating_sensor_{nullptr};
+    sensor::Sensor *unattended_time_sensor_{nullptr};
+    sensor::Sensor *sleep_deadline_sensor_{nullptr};
+    sensor::Sensor *breathe_state_sensor_{nullptr};
+    sensor::Sensor *breathe_value_sensor_{nullptr};
+
+    text_sensor::TextSensor *sleep_status_text_sensor_{nullptr};
+
     void set_fall_state_sensor(sensor::Sensor *s) { fall_state_sensor_ = s; }
     void set_static_residency_sensor(sensor::Sensor *s) { static_residency_sensor_ = s; }
     void set_static_residency_time_sensor(sensor::Sensor *s) { static_residency_time_sensor_ = s; }
@@ -152,6 +195,20 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void set_install_angle_z_sensor(sensor::Sensor *s) { install_angle_z_sensor_ = s; }
     void set_install_height_sensor(sensor::Sensor *s) { install_height_sensor_ = s; }
     void set_fall_status_text_sensor(text_sensor::TextSensor *s) { fall_status_text_sensor_ = s; }
+
+    void set_in_bed_sensor(sensor::Sensor *s) { in_bed_sensor_ = s; }
+    void set_sleep_state_sensor(sensor::Sensor *s) { sleep_state_sensor_ = s; }
+    void set_wake_duration_sensor(sensor::Sensor *s) { wake_duration_sensor_ = s; }
+    void set_light_sleep_sensor(sensor::Sensor *s) { light_sleep_sensor_ = s; }
+    void set_deep_sleep_sensor(sensor::Sensor *s) { deep_sleep_sensor_ = s; }
+    void set_sleep_quality_sensor(sensor::Sensor *s) { sleep_quality_sensor_ = s; }
+    void set_sleep_disturbances_sensor(sensor::Sensor *s) { sleep_disturbances_sensor_ = s; }
+    void set_sleep_quality_rating_sensor(sensor::Sensor *s) { sleep_quality_rating_sensor_ = s; }
+    void set_unattended_time_sensor(sensor::Sensor *s) { unattended_time_sensor_ = s; }
+    void set_sleep_deadline_sensor(sensor::Sensor *s) { sleep_deadline_sensor_ = s; }
+    void set_breathe_state_sensor(sensor::Sensor *s) { breathe_state_sensor_ = s; }
+    void set_breathe_value_sensor(sensor::Sensor *s) { breathe_value_sensor_ = s; }
+    void set_sleep_status_text_sensor(text_sensor::TextSensor *s) { sleep_status_text_sensor_ = s; }
 };
 
 
