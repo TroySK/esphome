@@ -52,6 +52,32 @@ std::pair<uint8_t, uint8_t> OP_SET_HEIGHT_RATIO_SWITCH = {0x83, 0x15};
 std::pair<uint8_t, uint8_t> OP_REQ_UNMANNED_TIME = {0x80, 0x92};
 std::pair<uint8_t, uint8_t> OP_SET_UNMANNED_TIME = {0x80, 0x12};
 
+std::pair<uint8_t, uint8_t> OP_SET_REPORTING_MODE = {0x84, 0x0F};
+std::pair<uint8_t, uint8_t> OP_SET_ABNORMAL_STRUGGLE = {0x84, 0x13};
+std::pair<uint8_t, uint8_t> OP_SET_UNATTENDED_STATE = {0x84, 0x14};
+std::pair<uint8_t, uint8_t> OP_SET_UNATTENDED_TIME = {0x84, 0x15};
+std::pair<uint8_t, uint8_t> OP_SET_SLEEP_DEADLINE = {0x84, 0x16};
+
+std::pair<uint8_t, uint8_t> OP_REQ_IN_BED = {0x84, 0x81};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_STATE = {0x84, 0x82};
+std::pair<uint8_t, uint8_t> OP_REQ_WAKE_DURATION = {0x84, 0x83};
+std::pair<uint8_t, uint8_t> OP_REQ_LIGHT_SLEEP = {0x84, 0x84};
+std::pair<uint8_t, uint8_t> OP_REQ_DEEP_SLEEP = {0x84, 0x85};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_QUALITY = {0x84, 0x86};
+std::pair<uint8_t, uint8_t> OP_REQ_REPORTING_MODE = {0x84, 0x8C};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_COMPOSITE = {0x84, 0x8D};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_DISTURBANCES = {0x84, 0x8E};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_STATISTICS = {0x84, 0x8F};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_QUALITY_RATING = {0x84, 0x90};
+std::pair<uint8_t, uint8_t> OP_REQ_ABNORMAL_STRUGGLE = {0x84, 0x91};
+std::pair<uint8_t, uint8_t> OP_REQ_UNATTENDED_STATE = {0x84, 0x92};
+std::pair<uint8_t, uint8_t> OP_REQ_ABNORMAL_STRUGGLE_SWITCH = {0x84, 0x93};
+std::pair<uint8_t, uint8_t> OP_REQ_UNATTENDED_SWITCH = {0x84, 0x94};
+std::pair<uint8_t, uint8_t> OP_REQ_UNATTENDED_TIME = {0x84, 0x95};
+std::pair<uint8_t, uint8_t> OP_REQ_SLEEP_DEADLINE = {0x84, 0x96};
+
+std::pair<uint8_t, uint8_t> OP_REQ_BREATHE_STATE = {0x81, 0x81};
+
 namespace esphome
 {
     namespace dfrobot_sen0623
@@ -265,6 +291,154 @@ namespace esphome
         {
             uint8_t data[1] = {0x0f};
             this->forge_packet(OP_REQ_ACCUMULATED_HEIGHT_DURATION.first, OP_REQ_ACCUMULATED_HEIGHT_DURATION.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_reporting_mode(uint8_t mode)
+        {
+            uint8_t data[1];
+            data[0] = mode;
+            this->forge_packet(OP_SET_REPORTING_MODE.first, OP_SET_REPORTING_MODE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_abnormal_struggle(bool enabled)
+        {
+            uint8_t data[1];
+            data[0] = enabled ? 1 : 0;
+            this->forge_packet(OP_SET_ABNORMAL_STRUGGLE.first, OP_SET_ABNORMAL_STRUGGLE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_unattended_state(bool enabled)
+        {
+            uint8_t data[1];
+            data[0] = enabled ? 1 : 0;
+            this->forge_packet(OP_SET_UNATTENDED_STATE.first, OP_SET_UNATTENDED_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_unattended_time(uint8_t minutes)
+        {
+            uint8_t data[1];
+            data[0] = minutes;
+            this->forge_packet(OP_SET_UNATTENDED_TIME.first, OP_SET_UNATTENDED_TIME.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_sleep_deadline(uint8_t hours)
+        {
+            uint8_t data[1];
+            data[0] = hours;
+            this->forge_packet(OP_SET_SLEEP_DEADLINE.first, OP_SET_SLEEP_DEADLINE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_in_bed()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_IN_BED.first, OP_REQ_IN_BED.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_state()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_STATE.first, OP_REQ_SLEEP_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_wake_duration()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_WAKE_DURATION.first, OP_REQ_WAKE_DURATION.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_light_sleep()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_LIGHT_SLEEP.first, OP_REQ_LIGHT_SLEEP.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_deep_sleep()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_DEEP_SLEEP.first, OP_REQ_DEEP_SLEEP.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_quality()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_QUALITY.first, OP_REQ_SLEEP_QUALITY.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_reporting_mode()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_REPORTING_MODE.first, OP_REQ_REPORTING_MODE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_disturbances()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_DISTURBANCES.first, OP_REQ_SLEEP_DISTURBANCES.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_quality_rating()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_QUALITY_RATING.first, OP_REQ_SLEEP_QUALITY_RATING.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_abnormal_struggle()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_ABNORMAL_STRUGGLE.first, OP_REQ_ABNORMAL_STRUGGLE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_unattended_state()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_UNATTENDED_STATE.first, OP_REQ_UNATTENDED_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_abnormal_struggle_switch()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_ABNORMAL_STRUGGLE_SWITCH.first, OP_REQ_ABNORMAL_STRUGGLE_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_unattended_switch()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_UNATTENDED_SWITCH.first, OP_REQ_UNATTENDED_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_unattended_time()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_UNATTENDED_TIME.first, OP_REQ_UNATTENDED_TIME.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_deadline()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_DEADLINE.first, OP_REQ_SLEEP_DEADLINE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_breathe_state()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_BREATHE_STATE.first, OP_REQ_BREATHE_STATE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_breathe_value()
+        {
+            this->request(OP_REQ_BREATH_RATE);
+        }
+
+        void DfrobotSen0623Component::request_sleep_composite()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_COMPOSITE.first, OP_REQ_SLEEP_COMPOSITE.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::request_sleep_statistics()
+        {
+            uint8_t data[1] = {0x0f};
+            this->forge_packet(OP_REQ_SLEEP_STATISTICS.first, OP_REQ_SLEEP_STATISTICS.second, data, 1);
         }
 
         void DfrobotSen0623Component::request(std::pair<uint8_t, uint8_t> operation)
@@ -534,6 +708,82 @@ namespace esphome
                     if (operation == OP_REQ_HEIGHT_RATIO_SWITCH || operation == OP_REQ_TRAJECTORY_SWITCH) {
                         if (this->fall_status_text_sensor_ != nullptr) {
                             this->fall_status_text_sensor_->publish_state(data[0] ? "enabled" : "disabled");
+                        }
+                    } else
+                    if (operation == OP_REQ_IN_BED) {
+                        if (this->in_bed_sensor_ != nullptr) {
+                            this->in_bed_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_SLEEP_STATE) {
+                        if (this->sleep_state_sensor_ != nullptr) {
+                            this->sleep_state_sensor_->publish_state(data[0]);
+                        }
+                        if (this->sleep_status_text_sensor_ != nullptr) {
+                            switch (data[0]) {
+                            case 0: this->sleep_status_text_sensor_->publish_state("awake"); break;
+                            case 1: this->sleep_status_text_sensor_->publish_state("light_sleep"); break;
+                            case 2: this->sleep_status_text_sensor_->publish_state("deep_sleep"); break;
+                            default: this->sleep_status_text_sensor_->publish_state("unknown"); break;
+                            }
+                        }
+                    } else
+                    if (operation == OP_REQ_WAKE_DURATION) {
+                        if (this->wake_duration_sensor_ != nullptr) {
+                            uint16_t val = (uint16_t)((data[0] << 8) | data[1]);
+                            this->wake_duration_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_LIGHT_SLEEP) {
+                        if (this->light_sleep_sensor_ != nullptr) {
+                            uint16_t val = (uint16_t)((data[0] << 8) | data[1]);
+                            this->light_sleep_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_DEEP_SLEEP) {
+                        if (this->deep_sleep_sensor_ != nullptr) {
+                            uint16_t val = (uint16_t)((data[0] << 8) | data[1]);
+                            this->deep_sleep_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_SLEEP_QUALITY || operation == OP_REQ_REPORTING_MODE) {
+                        if (this->sleep_quality_sensor_ != nullptr) {
+                            this->sleep_quality_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_SLEEP_DISTURBANCES) {
+                        if (this->sleep_disturbances_sensor_ != nullptr) {
+                            this->sleep_disturbances_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_SLEEP_QUALITY_RATING) {
+                        if (this->sleep_quality_rating_sensor_ != nullptr) {
+                            this->sleep_quality_rating_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_ABNORMAL_STRUGGLE) {
+                        if (this->breathe_value_sensor_ != nullptr) {
+                            this->breathe_value_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_UNATTENDED_STATE || operation == OP_REQ_ABNORMAL_STRUGGLE_SWITCH || operation == OP_REQ_UNATTENDED_SWITCH) {
+                        if (this->unattended_time_sensor_ != nullptr) {
+                            this->unattended_time_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_UNATTENDED_TIME) {
+                        if (this->unattended_time_sensor_ != nullptr) {
+                            this->unattended_time_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_SLEEP_DEADLINE) {
+                        if (this->sleep_deadline_sensor_ != nullptr) {
+                            this->sleep_deadline_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation == OP_REQ_BREATHE_STATE) {
+                        if (this->breathe_state_sensor_ != nullptr) {
+                            this->breathe_state_sensor_->publish_state(data[0]);
                         }
                     } else
                     if (
