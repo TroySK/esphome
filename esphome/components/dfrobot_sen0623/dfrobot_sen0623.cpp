@@ -999,9 +999,10 @@ namespace esphome
 
         void DfrobotSen0623Component::set_switch_request_rate(bool val)
         {
-            if (this->request_rate_switch_ != nullptr)
+            if (this->request_rate_switch_ != nullptr) {
                 _switch_request_rate = val;
-            this->request_rate_switch_->publish_state(_switch_request_rate);
+                this->request_rate_switch_->publish_state(_switch_request_rate);
+            }
         }
 
         void DfrobotSen0623Component::set_switch_hp_led(bool val)
