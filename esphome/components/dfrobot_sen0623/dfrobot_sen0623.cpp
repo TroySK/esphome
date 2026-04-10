@@ -51,6 +51,22 @@ std::pair<uint8_t, uint8_t> OP_SET_HEIGHT_RATIO_SWITCH = {0x83, 0x15};
 std::pair<uint8_t, uint8_t> OP_REQ_UNMANNED_TIME = {0x80, 0x92};
 std::pair<uint8_t, uint8_t> OP_SET_UNMANNED_TIME = {0x80, 0x12};
 
+std::pair<uint8_t, uint8_t> OP_SET_SEATED_DISTANCE = {0x80, 0x0D};
+std::pair<uint8_t, uint8_t> OP_SET_MOTION_DISTANCE = {0x80, 0x0E};
+std::pair<uint8_t, uint8_t> OP_REQ_SEATED_DISTANCE = {0x80, 0x8D};
+std::pair<uint8_t, uint8_t> OP_REQ_MOTION_DISTANCE = {0x80, 0x8E};
+
+std::pair<uint8_t, uint8_t> OP_SET_FALL_TIME = {0x83, 0x0C};
+
+std::pair<uint8_t, uint8_t> OP_SET_UNMANNED_TIME = {0x80, 0x12};
+
+std::pair<uint8_t, uint8_t> OP_SET_SEATED_DISTANCE = {0x80, 0x0D};
+std::pair<uint8_t, uint8_t> OP_SET_MOTION_DISTANCE = {0x80, 0x0E};
+std::pair<uint8_t, uint8_t> OP_REQ_SEATED_DISTANCE = {0x80, 0x8D};
+std::pair<uint8_t, uint8_t> OP_REQ_MOTION_DISTANCE = {0x80, 0x8E};
+
+std::pair<uint8_t, uint8_t> OP_SET_FALL_TIME = {0x83, 0x0C};
+
 std::pair<uint8_t, uint8_t> OP_SET_REPORTING_MODE = {0x84, 0x0F};
 std::pair<uint8_t, uint8_t> OP_SET_ABNORMAL_STRUGGLE = {0x84, 0x13};
 std::pair<uint8_t, uint8_t> OP_SET_UNATTENDED_STATE = {0x84, 0x14};
@@ -224,6 +240,42 @@ namespace esphome
             uint8_t data[1];
             data[0] = enabled ? 1 : 0;
             this->forge_packet(OP_SET_HEIGHT_RATIO_SWITCH.first, OP_SET_HEIGHT_RATIO_SWITCH.second, data, 1);
+        }
+
+        void DfrobotSen0623Component::cmd_set_fall_time(uint32_t seconds)
+        {
+            uint8_t data[4];
+            data[0] = (seconds >> 24) & 0xff;
+            data[1] = (seconds >> 16) & 0xff;
+            data[2] = (seconds >> 8) & 0xff;
+            data[3] = seconds & 0xff;
+            this->forge_packet(OP_SET_FALL_TIME.first, OP_SET_FALL_TIME.second, data, 4);
+        }
+
+        void DfrobotSen0623Component::cmd_set_unmanned_time(uint32_t seconds)
+        {
+            uint8_t data[4];
+            data[0] = (seconds >> 24) & 0xff;
+            data[1] = (seconds >> 16) & 0xff;
+            data[2] = (seconds >> 8) & 0xff;
+            data[3] = seconds & 0xff;
+            this->forge_packet(OP_SET_UNMANNED_TIME.first, OP_SET_UNMANNED_TIME.second, data, 4);
+        }
+
+        void DfrobotSen0623Component::cmd_set_seated_distance(uint16_t distance)
+        {
+            uint8_t data[2];
+            data[0] = (distance >> 8) & 0xff;
+            data[1] = distance & 0xff;
+            this->forge_packet(OP_SET_SEATED_DISTANCE.first, OP_SET_SEATED_DISTANCE.second, data, 2);
+        }
+
+        void DfrobotSen0623Component::cmd_set_motion_distance(uint16_t distance)
+        {
+            uint8_t data[2];
+            data[0] = (distance >> 8) & 0xff;
+            data[1] = distance & 0xff;
+            this->forge_packet(OP_SET_MOTION_DISTANCE.first, OP_SET_MOTION_DISTANCE.second, data, 2);
         }
 
         void DfrobotSen0623Component::request_fall_state()
@@ -710,6 +762,18 @@ namespace esphome
                         if (this->accumulated_height_duration_sensor_ != nullptr) {
                             uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
                             this->accumulated_height_duration_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_SEATED_DISTANCE) {
+                        if (this->seated_distance_sensor_ != nullptr) {
+                            uint16_t val = (uint16_t)((data[0] << 8) | data[1]);
+                            this->seated_distance_sensor_->publish_state(val);
+                        }
+                    } else
+                    if (operation == OP_REQ_MOTION_DISTANCE) {
+                        if (this->motion_distance_sensor_ != nullptr) {
+                            uint16_t val = (uint16_t)((data[0] << 8) | data[1]);
+                            this->motion_distance_sensor_->publish_state(val);
                         }
                     } else
                     if (operation == OP_REQ_HEIGHT_RATIO_SWITCH || operation == OP_REQ_TRAJECTORY_SWITCH) {

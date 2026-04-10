@@ -86,6 +86,10 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void cmd_set_report_frequency(uint32_t ms);
     void cmd_set_report_switch(bool enabled);
     void cmd_set_height_ratio_switch(bool enabled);
+    void cmd_set_fall_time(uint32_t seconds);
+    void cmd_set_unmanned_time(uint32_t seconds);
+    void cmd_set_seated_distance(uint16_t distance);
+    void cmd_set_motion_distance(uint16_t distance);
 
     // fall mode - data queries
     void request_fall_state();
@@ -162,6 +166,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     sensor::Sensor *track_y_sensor_{nullptr};
     sensor::Sensor *unmanned_time_sensor_{nullptr};
     sensor::Sensor *accumulated_height_duration_sensor_{nullptr};
+    sensor::Sensor *seated_distance_sensor_{nullptr};
+    sensor::Sensor *motion_distance_sensor_{nullptr};
 
     text_sensor::TextSensor *fall_status_text_sensor_{nullptr};
 
@@ -190,6 +196,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void set_track_y_sensor(sensor::Sensor *s) { track_y_sensor_ = s; }
     void set_unmanned_time_sensor(sensor::Sensor *s) { unmanned_time_sensor_ = s; }
     void set_accumulated_height_duration_sensor(sensor::Sensor *s) { accumulated_height_duration_sensor_ = s; }
+    void set_seated_distance_sensor(sensor::Sensor *s) { seated_distance_sensor_ = s; }
+    void set_motion_distance_sensor(sensor::Sensor *s) { motion_distance_sensor_ = s; }
     void set_install_angle_x_sensor(sensor::Sensor *s) { install_angle_x_sensor_ = s; }
     void set_install_angle_y_sensor(sensor::Sensor *s) { install_angle_y_sensor_ = s; }
     void set_install_angle_z_sensor(sensor::Sensor *s) { install_angle_z_sensor_ = s; }
