@@ -315,12 +315,14 @@ namespace esphome
             
         }
 
+        std::pair<uint8_t, uint8_t> OP_REQ_HP_LED = {0x01, 0x83};
+        std::pair<uint8_t, uint8_t> OP_REQ_FALL_LED = {0x01, 0x84};
+
         void DfrobotSen0623Component::setup()
         {
             ESP_LOGI(TAG, "WAITING FOR INIT");
             delay(1000);
 
-            // Send init packet
             this->request(OP_INIT);
             uint8_t result = this->wait_for_packet(OP_INIT);
             if (result != 0xf5) {
@@ -331,16 +333,40 @@ namespace esphome
                 if (this->movement_text_sensor_ != nullptr) {
                     this->movement_text_sensor_->publish_state("NA");
                 }
-                // Request mode
                 this->request(OP_REQ_MODE);
                 this->wait_for_packet(OP_REQ_MODE);
-                // Reset sensor
                 this->request(OP_RST_SENSOR);
                 this->wait_for_packet(OP_RST_SENSOR);
-                //_d = false;
+
+                sync_configuration();
             } else {
                 this->mark_failed();
             }
+        }
+
+        void DfrobotSen0623Component::sync_configuration()
+        {
+            ESP_LOGI(TAG, "Syncing configuration from device...");
+
+            this->request(OP_REQ_MODE);
+            uint8_t mode = this->wait_for_packet(OP_REQ_MODE);
+            if (mode != 0xf5 && this->status_text_sensor_ != nullptr) {
+                const char* mode_str = (mode == 1) ? "fall" : (mode == 2) ? "sleep" : "error";
+                this->status_text_sensor_->publish_state(mode_str);
+            }
+
+            this->request(OP_REQ_HP_LED);
+            uint8_t hp_led = this->wait_for_packet(OP_REQ_HP_LED);
+            if (hp_led != 0xf5 && this->hp_led_switch_ != nullptr) {
+                this->hp_led_switch_->publish_state(hp_led == 1);
+            }
+
+            this->request(OP_REQ_FALL_LED);
+            uint8_t fall_led = this->wait_for_packet(OP_REQ_FALL_LED);
+            if (fall_led != 0xf5) {
+            }
+
+            ESP_LOGI(TAG, "Configuration sync complete");
         }
 
         bool _pending_update = false;
