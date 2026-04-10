@@ -53,3 +53,4 @@
 | 2026-04-10 | Initial | Mode switching commands |
 | 2026-04-10 | All tasks | All implementation tasks completed |
 | 2026-04-10 | Bug fixes | All bug fixes from code review |
+| 2026-04-10 | API gap | Add missing setters from reference API |
