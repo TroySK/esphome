@@ -786,21 +786,18 @@ namespace esphome
                             this->breathe_state_sensor_->publish_state(data[0]);
                         }
                     } else
-                    if (
-                        false 
-                        || (operation.first == 0x01 && operation.second == 0x01) // 1
-                        || (operation.first == 0x07 && operation.second == 0x07)      // 1
-                        || (operation.first == 0x80 && operation.second == 0x02)      // 1
-                        || (operation.first == 0x80 && operation.second == 0x03)      // 1
-                        || (operation.first == 0x80 && operation.second == 0x04)      // 2
-                        || (operation.first == 0x80 && operation.second == 0x05)      // 6
-                        || (operation.first == 0x81 && operation.second == 0x02)      // 1
-                        || (operation.first == 0x85 && operation.second == 0x02)      // 1
-                    )
-                    {
-                        ;
-                    }
-                    else
+                    if (operation.first == 0x01 && operation.second == 0x01) {
+                    } else
+                    if (operation.first == 0x07 && operation.second == 0x07) {
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x02) {
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x03) {
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x04) {
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x05) {
+                    } else
                     {
                         //ESP_LOGI(TAG, "-----");
                         //ESP_LOGI(TAG, "%02X %02X (%i)", operation.first, operation.second, dataLen);
