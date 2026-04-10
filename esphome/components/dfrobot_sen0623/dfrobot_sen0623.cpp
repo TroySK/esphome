@@ -56,17 +56,6 @@ std::pair<uint8_t, uint8_t> OP_SET_MOTION_DISTANCE = {0x80, 0x0E};
 std::pair<uint8_t, uint8_t> OP_REQ_SEATED_DISTANCE = {0x80, 0x8D};
 std::pair<uint8_t, uint8_t> OP_REQ_MOTION_DISTANCE = {0x80, 0x8E};
 
-std::pair<uint8_t, uint8_t> OP_SET_FALL_TIME = {0x83, 0x0C};
-
-std::pair<uint8_t, uint8_t> OP_SET_UNMANNED_TIME = {0x80, 0x12};
-
-std::pair<uint8_t, uint8_t> OP_SET_SEATED_DISTANCE = {0x80, 0x0D};
-std::pair<uint8_t, uint8_t> OP_SET_MOTION_DISTANCE = {0x80, 0x0E};
-std::pair<uint8_t, uint8_t> OP_REQ_SEATED_DISTANCE = {0x80, 0x8D};
-std::pair<uint8_t, uint8_t> OP_REQ_MOTION_DISTANCE = {0x80, 0x8E};
-
-std::pair<uint8_t, uint8_t> OP_SET_FALL_TIME = {0x83, 0x0C};
-
 std::pair<uint8_t, uint8_t> OP_SET_REPORTING_MODE = {0x84, 0x0F};
 std::pair<uint8_t, uint8_t> OP_SET_ABNORMAL_STRUGGLE = {0x84, 0x13};
 std::pair<uint8_t, uint8_t> OP_SET_UNATTENDED_STATE = {0x84, 0x14};
