@@ -73,6 +73,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
     void loop() override;
     void update() override;
     void dump_config() override;
+    void sync_configuration();
   protected:
     sensor::Sensor *heart_rate_sensor_{nullptr};
     sensor::Sensor *breath_rate_sensor_{nullptr};
