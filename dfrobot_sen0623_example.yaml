@@ -10,13 +10,13 @@ uart:
   rx_pin: 3
   baud_rate: 115200
 
-# Main component with sub-entities
+# Main component
 dfrobot_sen0623:
   id: mmwave
   uart_id: uart_bus
   update_interval: 60s
 
-  # Only these 4 sensors are configurable via YAML:
+  # Core sensors (both modes)
   heart_rate:
     name: Heart Rate
   breath_rate:
@@ -27,6 +27,86 @@ dfrobot_sen0623:
   human_move_range:
     name: Move Range
 
+  # Fall mode - installation
+  install_angle_x:
+    name: Install Angle X
+    unit_of_measurement: "°"
+  install_angle_y:
+    name: Install Angle Y
+    unit_of_measurement: "°"
+  install_angle_z:
+    name: Install Angle Z
+    unit_of_measurement: "°"
+  install_height:
+    name: Install Height
+    unit_of_measurement: cm
+
+  # Fall mode - data
+  fall_state:
+    name: Fall State
+  static_residency:
+    name: Static Residency
+  static_residency_time:
+    name: Static Residency Time
+    unit_of_measurement: s
+  fall_time:
+    name: Fall Time
+    unit_of_measurement: s
+  fall_sensitivity:
+    name: Fall Sensitivity
+  fall_break_height:
+    name: Fall Break Height
+    unit_of_measurement: cm
+  track_x:
+    name: Track X
+    unit_of_measurement: cm
+  track_y:
+    name: Track Y
+    unit_of_measurement: cm
+  unmanned_time:
+    name: Unmanned Time
+    unit_of_measurement: s
+  accumulated_height_duration:
+    name: Accumulated Height Duration
+    unit_of_measurement: s
+  seated_distance:
+    name: Seated Distance
+    unit_of_measurement: cm
+  motion_distance:
+    name: Motion Distance
+    unit_of_measurement: cm
+
+  # Sleep mode - data
+  in_bed:
+    name: In Bed
+  sleep_state:
+    name: Sleep State
+  wake_duration:
+    name: Wake Duration
+    unit_of_measurement: min
+  light_sleep:
+    name: Light Sleep
+    unit_of_measurement: min
+  deep_sleep:
+    name: Deep Sleep
+    unit_of_measurement: min
+  sleep_quality:
+    name: Sleep Quality
+  sleep_disturbances:
+    name: Sleep Disturbances
+  sleep_quality_rating:
+    name: Sleep Quality Rating
+  unattended_time:
+    name: Unattended Time
+    unit_of_measurement: min
+  sleep_deadline:
+    name: Sleep Deadline
+    unit_of_measurement: min
+  breathe_state:
+    name: Breathe State
+  breathe_value:
+    name: Breathe Value
+
   # Binary sensor
   presence:
     name: Presence
@@ -36,6 +116,10 @@ dfrobot_sen0623:
     name: Status
   movement:
     name: Movement
+  fall_status:
+    name: Fall Status
+  sleep_status:
+    name: Sleep Status
 
 # Switches
 switch:
