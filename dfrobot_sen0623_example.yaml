@@ -45,36 +45,26 @@ uart:
   rx_pin: GPIO16
   baud_rate: 115200
 
-# Main component - all sensors defined here
+# Main component (no nested sensors)
 dfrobot_sen0623:
   update_interval: 5s
 
-  # Core sensors
-  heart_rate:
-    name: "Heart rate"
-  breath_rate:
-    name: "Breath rate"
-  human_distance:
-    name: "Human distance"
-  human_move_range:
-    name: "Human move range"
-
-  # Binary sensor
-  presence:
-    name: "Presence"
-
-  # Text sensors
-  status:
-    name: "Operating mode"
-  movement:
-    name: "Movement type"
-  fall_status:
-    name: "Fall Status"
-  sleep_status:
-    name: "Sleep Status"
-
-# Additional sensors (use sub-platform)
+# All sensors use sub-platform format
 sensor:
+  # Core sensors
+  - platform: dfrobot_sen0623
+    heart_rate:
+      name: "Heart rate"
+  - platform: dfrobot_sen0623
+    breath_rate:
+      name: "Breath rate"
+  - platform: dfrobot_sen0623
+    human_distance:
+      name: "Human distance"
+  - platform: dfrobot_sen0623
+    human_move_range:
+      name: "Human move range"
+
   # Fall mode - installation
   - platform: dfrobot_sen0623
     install_angle_x:
@@ -164,6 +154,27 @@ sensor:
   - platform: dfrobot_sen0623
     breathe_value:
       name: "Breathe Value"
+
+# Text sensors
+text_sensor:
+  - platform: dfrobot_sen0623
+    status:
+      name: "Operating mode"
+  - platform: dfrobot_sen0623
+    movement:
+      name: "Movement type"
+  - platform: dfrobot_sen0623
+    fall_status:
+      name: "Fall Status"
+  - platform: dfrobot_sen0623
+    sleep_status:
+      name: "Sleep Status"
+
+# Binary sensors
+binary_sensor:
+  - platform: dfrobot_sen0623
+    presence:
+      name: "Presence"
 
 # Switches
 switch:
