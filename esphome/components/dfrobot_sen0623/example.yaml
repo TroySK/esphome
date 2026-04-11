@@ -1,5 +1,4 @@
 # DFRobot SEN0623 C1001 mmWave Human Detection Sensor
-# https://wiki.dfrobot.com/SKU_SEN0623_C1001_mmWave_Human_Detection_Sensor
 
 esphome:
   name: mmwave_sensor
@@ -45,13 +44,11 @@ uart:
   rx_pin: GPIO16
   baud_rate: 115200
 
-# Main component (no nested sensors)
 dfrobot_sen0623:
   update_interval: 5s
 
-# All sensors use sub-platform format
+# Core sensors
 sensor:
-  # Core sensors
   - platform: dfrobot_sen0623
     heart_rate:
       name: "Heart rate"
@@ -155,7 +152,6 @@ sensor:
     breathe_value:
       name: "Breathe Value"
 
-# Text sensors
 text_sensor:
   - platform: dfrobot_sen0623
     status:
@@ -170,13 +166,11 @@ text_sensor:
     sleep_status:
       name: "Sleep Status"
 
-# Binary sensors
 binary_sensor:
   - platform: dfrobot_sen0623
     presence:
       name: "Presence"
 
-# Switches
 switch:
   - platform: dfrobot_sen0623
     type: request_rate
@@ -185,7 +179,6 @@ switch:
     type: hp_led
     name: "HP Led Enabled"
 
-# Buttons
 button:
   - platform: dfrobot_sen0623
     type: reset
