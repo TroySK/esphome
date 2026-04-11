@@ -22,15 +22,15 @@ CONFIG_SCHEMA = cv.Schema({
 async def to_code(config):
     parent = await cg.get_variable(config[CONF_DFROBOT_SEN0623_ID])
 
-    if status := config.get(CONF_STATUS):
-        sens = await text_sensor.new_text_sensor(status)
+    if conf := config.get(CONF_STATUS):
+        sens = await text_sensor.new_text_sensor(conf)
         cg.add(parent.set_status_text_sensor(sens))
-    if movement := config.get(CONF_HUMAN_MOVEMENT):
-        sens = await text_sensor.new_text_sensor(movement)
+    if conf := config.get(CONF_HUMAN_MOVEMENT):
+        sens = await text_sensor.new_text_sensor(conf)
         cg.add(parent.set_movement_text_sensor(sens))
-    if fall_status := config.get(CONF_FALL_STATUS):
-        sens = await text_sensor.new_text_sensor(fall_status)
+    if conf := config.get(CONF_FALL_STATUS):
+        sens = await text_sensor.new_text_sensor(conf)
         cg.add(parent.set_fall_status_text_sensor(sens))
-    if sleep_status := config.get(CONF_SLEEP_STATUS):
-        sens = await text_sensor.new_text_sensor(sleep_status)
+    if conf := config.get(CONF_SLEEP_STATUS):
+        sens = await text_sensor.new_text_sensor(conf)
         cg.add(parent.set_sleep_status_text_sensor(sens))
