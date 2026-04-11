@@ -1,0 +1,56 @@
+esphome:
+  name: mmwave_sensor
+
+uart:
+  id: uart_bus
+  tx_pin: 1
+  rx_pin: 3
+  baud_rate: 115200
+
+# Main component with all sub-entities
+dfrobot_sen0623:
+  id: mmwave
+  uart_id: uart_bus
+  update_interval: 60s
+
+  # Sensors under main component
+  heart_rate:
+    name: Heart Rate
+  breath_rate:
+    name: Breath Rate
+  human_distance:
+    name: Distance
+    unit_of_measurement: cm
+  human_move_range:
+    name: Move Range
+
+  # Binary sensor
+  presence:
+    name: Presence
+
+  # Text sensors
+  status:
+    name: Status
+  movement:
+    name: Movement
+
+# Switches
+switch:
+  - platform: dfrobot_sen0623
+    type: request_rate
+    name: Request Rate
+  - platform: dfrobot_sen0623
+    type: hp_led
+    name: HP LED
+
+# Buttons
+button:
+  - platform: dfrobot_sen0623
+    type: reset
+    name: Reset Sensor
+  - platform: dfrobot_sen0623
+    type: mode_fall
+    name: Fall Mode
+  - platform: dfrobot_sen0623
+    type: mode_sleep
+    name: Sleep Mode
