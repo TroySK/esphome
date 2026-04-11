@@ -16,7 +16,7 @@ dfrobot_sen0623:
   uart_id: uart_bus
   update_interval: 60s
 
-  # Core sensors
+  # Core sensors (both modes)
   heart_rate:
     name: Heart Rate
   breath_rate:
@@ -36,6 +36,21 @@ dfrobot_sen0623:
     name: Status
   movement:
     name: Movement
+
+# Additional sensors - add under main component when needed:
+#  - install_angle_x/y/z: Installation angle
+#  - install_height: Installation height
+#  - fall_state: Fall detection state
+#  - static_residency: Static residency state  
+#  - track_x/y: Target tracking coordinates
+#  - in_bed: In or out of bed (sleep mode)
+#  - sleep_state: Sleep state (0=awake, 1=light, 2=deep)
+#  - wake_duration: Wake duration in minutes
+#  - light_sleep: Light sleep duration
+#  - deep_sleep: Deep sleep duration
+#  - sleep_quality: Sleep quality score
+#  - sleep_disturbances: Sleep disturbances count
+#  - breathe_state: Breathing state (1=normal, 2=fast, 3=slow, 4=none)
 
 # Switches (typed schema)
 switch:
