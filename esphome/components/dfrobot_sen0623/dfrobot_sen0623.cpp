@@ -941,8 +941,8 @@ namespace esphome
                 this->status_text_sensor_->publish_state(mode_str);
             }
 
-            this->request(OP_REQ_HP_LED);
-            uint8_t hp_led = this->wait_for_packet(OP_REQ_HP_LED);
+            this->request(OP_INIT);
+            uint8_t hp_led = this->wait_for_packet(OP_INIT);
             if (hp_led != 0xf5 && this->hp_led_switch_ != nullptr) {
                 this->hp_led_switch_->publish_state(hp_led == 1);
             }
