@@ -63,6 +63,96 @@ sensor:
     human_move_range:
       name: "Human move range"
 
+  # Fall mode - installation  
+  - platform: dfrobot_sen0623
+    install_angle_x:
+      name: "Install Angle X"
+  - platform: dfrobot_sen0623
+    install_angle_y:
+      name: "Install Angle Y"
+  - platform: dfrobot_sen0623
+    install_angle_z:
+      name: "Install Angle Z"
+  - platform: dfrobot_sen0623
+    install_height:
+      name: "Install Height"
+
+  # Fall mode - data
+  - platform: dfrobot_sen0623
+    fall_state:
+      name: "Fall State"
+  - platform: dfrobot_sen0623
+    static_residency:
+      name: "Static Residency"
+  - platform: dfrobot_sen0623
+    static_residency_time:
+      name: "Static Residency Time"
+  - platform: dfrobot_sen0623
+    fall_time:
+      name: "Fall Time"
+  - platform: dfrobot_sen0623
+    fall_sensitivity:
+      name: "Fall Sensitivity"
+  - platform: dfrobot_sen0623
+    fall_break_height:
+      name: "Fall Break Height"
+  - platform: dfrobot_sen0623
+    track_x:
+      name: "Track X"
+  - platform: dfrobot_sen0623
+    track_y:
+      name: "Track Y"
+  - platform: dfrobot_sen0623
+    unmanned_time:
+      name: "Unmanned Time"
+  - platform: dfrobot_sen0623
+    accumulated_height_duration:
+      name: "Accumulated Height Duration"
+  - platform: dfrobot_sen0623
+    seated_distance:
+      name: "Seated Distance"
+  - platform: dfrobot_sen0623
+    motion_distance:
+      name: "Motion Distance"
+
+  # Sleep mode - data
+  - platform: dfrobot_sen0623
+    in_bed:
+      name: "In Bed"
+  - platform: dfrobot_sen0623
+    sleep_state:
+      name: "Sleep State"
+  - platform: dfrobot_sen0623
+    wake_duration:
+      name: "Wake Duration"
+  - platform: dfrobot_sen0623
+    light_sleep:
+      name: "Light Sleep"
+  - platform: dfrobot_sen0623
+    deep_sleep:
+      name: "Deep Sleep"
+  - platform: dfrobot_sen0623
+    sleep_quality:
+      name: "Sleep Quality"
+  - platform: dfrobot_sen0623
+    sleep_disturbances:
+      name: "Sleep Disturbances"
+  - platform: dfrobot_sen0623
+    sleep_quality_rating:
+      name: "Sleep Quality Rating"
+  - platform: dfrobot_sen0623
+    unattended_time:
+      name: "Unattended Time"
+  - platform: dfrobot_sen0623
+    sleep_deadline:
+      name: "Sleep Deadline"
+  - platform: dfrobot_sen0623
+    breathe_state:
+      name: "Breathe State"
+  - platform: dfrobot_sen0623
+    breathe_value:
+      name: "Breathe Value"
+
 # Text sensors
 text_sensor:
   - platform: dfrobot_sen0623
@@ -71,8 +161,14 @@ text_sensor:
   - platform: dfrobot_sen0623
     movement:
       name: "Movement type"
+  - platform: dfrobot_sen0623
+    fall_status:
+      name: "Fall Status"
+  - platform: dfrobot_sen0623
+    sleep_status:
+      name: "Sleep Status"
 
-# Binary sensor
+# Binary sensors
 binary_sensor:
   - platform: dfrobot_sen0623
     presence:
