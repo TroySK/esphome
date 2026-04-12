@@ -2,11 +2,8 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import uart
 from esphome.components import binary_sensor
-from esphome.const import (
-    CONF_ID,
-    CONF_MOTION,
-    DEVICE_CLASS_MOTION
-)
+from esphome.const import CONF_ID, CONF_MOTION, DEVICE_CLASS_MOTION
+
 DEPENDENCIES = ["uart"]
 
 CONF_DFROBOT_SEN0623_ID = "dfrobot_sen0623_id"
@@ -23,12 +20,11 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_MOTION): binary_sensor.binary_sensor_schema(
                 device_class=DEVICE_CLASS_MOTION
             ),
-            
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
     .extend(uart.UART_DEVICE_SCHEMA)
-    .extend(cv.polling_component_schema("60s"))
+    .extend(cv.polling_component_schema("30s"))
 )
 
 
