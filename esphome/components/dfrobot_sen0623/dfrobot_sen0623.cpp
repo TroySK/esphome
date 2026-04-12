@@ -571,10 +571,11 @@ namespace esphome
         }
 
         uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation) {
-            // I think this can be a lot lower
-            uint8_t ths = 128;
-            while(ths > 0) {
-                //ESP_LOGI(TAG, "%s", ths);
+            // Reduced timeout to prevent watchdog issues
+            uint8_t ths = 32;  // Reduced from 128 to 32 (max 1.6 seconds instead of 6.4)
+            uint32_t start_time = millis();
+            
+            while(ths > 0 && (millis() - start_time) < 2000) {  // Add 2 second timeout
                 uint8_t packetData[100]; // adjust size as needed
                 uint8_t len = this->read_packet(packetData);
 
@@ -584,7 +585,7 @@ namespace esphome
                         return packetData[6];
                     } 
                 }
-
+                delay(10);  // Small delay to prevent tight loop
             }
             ESP_LOGI(TAG, "WAIT FAILED");
             return 0xf5;
@@ -907,7 +908,7 @@ namespace esphome
         void DfrobotSen0623Component::setup()
         {
             ESP_LOGI(TAG, "WAITING FOR INIT");
-            delay(1000);
+            delay(500);  // Reduced from 1000ms
 
             this->request(OP_INIT);
             uint8_t result = this->wait_for_packet(OP_INIT);
@@ -919,12 +920,18 @@ namespace esphome
                 if (this->movement_text_sensor_ != nullptr) {
                     this->movement_text_sensor_->publish_state("NA");
                 }
+                
+                // Add delays between requests to prevent watchdog timeout
                 this->request(OP_REQ_MODE);
+                delay(100);  // Small delay
                 this->wait_for_packet(OP_REQ_MODE);
+                
                 this->request(OP_RST_SENSOR);
+                delay(100);  // Small delay
                 this->wait_for_packet(OP_RST_SENSOR);
 
-                sync_configuration();
+                // Don't call sync_configuration() during setup as it's too blocking
+                // Device will sync during normal operation
             } else {
                 this->mark_failed();
             }
@@ -975,6 +982,16 @@ namespace esphome
                 //this->wait_for_packet(OP_REQ_HEART_RATE);
                 this->request(OP_REQ_BREATH_RATE);
                 //this->wait_for_packet(OP_REQ_BREATH_RATE);
+                this->request_breathe_state();
+                this->request_breathe_value();
+                this->request_accumulated_height_duration();
+                this->request_deep_sleep();
+                this->request_sleep_state();
+                this->request_sleep_quality();
+                this->request_sleep_disturbances();
+                this->request_sleep_quality_rating();
+                this->request_sleep_composite();
+                this->request_sleep_statistics();
                 this->request(OP_REQ_HUMAN_PRESENCE);
                 //this->wait_for_packet(OP_REQ_HUMAN_PRESENCE);
                 this->request(OP_REQ_HUMAN_MOVEMENT);
@@ -983,6 +1000,27 @@ namespace esphome
                 //this->wait_for_packet(OP_REQ_HUMAN_DISTANCE);
                 this->request(OP_REQ_HUMAN_MOVE_RANGE);
                 //this->wait_for_packet(OP_REQ_HUMAN_MOVE_RANGE);
+                this->request_fall_state();
+                this->request_fall_time();
+                this->request_fall_sensitivity();
+                this->request_fall_break_height();
+                this->request_install_angle();
+                this->request_install_height();
+                this->request_in_bed();
+                this->request_wake_duration();
+                this->request_light_sleep();
+                this->request_sleep_quality();
+                this->request_sleep_disturbances();
+                this->request_sleep_quality_rating();
+                this->request_unattended_state();
+                this->request_unattended_time();
+                this->request_sleep_deadline();
+                this->request_static_residency_state();
+                this->request_static_residency_time();
+                this->request_track();
+                this->request_unmanned_time();
+                this->request(OP_REQ_SEATED_DISTANCE);
+                this->request(OP_REQ_MOTION_DISTANCE);
             }
 
             uint8_t packetData[100]; // adjust size as needed
