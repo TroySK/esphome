@@ -714,6 +714,13 @@ namespace esphome
                         if (this->static_residency_sensor_ != nullptr) {
                             this->static_residency_sensor_->publish_state(data[0]);
                         }
+                        if (this->static_residency_text_sensor_ != nullptr) {
+                            switch (data[0]) {
+                            case 0: this->static_residency_text_sensor_->publish_state("no_stationary_dwell"); break;
+                            case 1: this->static_residency_text_sensor_->publish_state("stationary_dwell"); break;
+                            default: this->static_residency_text_sensor_->publish_state("unknown"); break;
+                            }
+                        }
                     } else
                     if (operation == OP_REQ_STATIC_RESIDENCY_TIME || operation == OP_REQ_FALL_TIME) {
                         if (this->static_residency_time_sensor_ != nullptr) {
