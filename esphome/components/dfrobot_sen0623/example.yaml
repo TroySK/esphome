@@ -165,6 +165,9 @@ text_sensor:
   - platform: dfrobot_sen0623
     sleep_status:
       name: "Sleep Status"
+  - platform: dfrobot_sen0623
+    static_residency:
+      name: "Static Residency"
 
 binary_sensor:
   - platform: dfrobot_sen0623
