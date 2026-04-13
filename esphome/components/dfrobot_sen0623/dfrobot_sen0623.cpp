@@ -859,6 +859,25 @@ namespace esphome
                             this->breathe_state_sensor_->publish_state(data[0]);
                         }
                     } else
+                    if (operation == OP_REQ_SLEEP_COMPOSITE) {
+                        // 8 bytes: presence, sleepState, avgRespiration, avgHeartbeat, turnover, largeMove, minorMove, apnea
+                        ESP_LOGI(TAG, "Sleep composite: presence=%d, sleepState=%d, resp=%d, hr=%d, turn=%d", 
+                                 data[0], data[1], data[2], data[3], data[4]);
+                    } else
+                    if (operation == OP_REQ_SLEEP_STATISTICS) {
+                        // 12 bytes: sleepQuality, sleepTime, wakeDuration, shallow%, deep%, outOfBed, exitCount, turnOver, avgResp, avgHR, apnea
+                        ESP_LOGI(TAG, "Sleep stats: quality=%d, time=%d, wake=%d, shallow=%d, deep=%d", 
+                                 data[0], data[1], data[2], data[3], data[4]);
+                    } else
+                    if (operation == OP_REQ_STATIC_RESIDENCY_TIME) {
+                        ESP_LOGI(TAG, "Static residency time: %02X %02X %02X %02X", data[0], data[1], data[2], data[3]);
+                        if (dataLen >= 4) {
+                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            if (this->static_residency_time_sensor_ != nullptr) {
+                                this->static_residency_time_sensor_->publish_state(val);
+                            }
+                        }
+                    } else
                     if (operation.first == 0x01 && operation.second == 0x01) {
                     } else
                     if (operation.first == 0x07 && operation.second == 0x07) {
