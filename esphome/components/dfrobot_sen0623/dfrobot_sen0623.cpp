@@ -777,6 +777,7 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_SLEEP_STATE) {
+                        ESP_LOGI(TAG, "Processing SLEEP_STATE: %02X", data[0]);
                         if (this->sleep_state_sensor_ != nullptr) {
                             this->sleep_state_sensor_->publish_state(data[0]);
                         }
@@ -828,9 +829,8 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_UNATTENDED_STATE || operation == OP_REQ_ABNORMAL_STRUGGLE_SWITCH || operation == OP_REQ_UNATTENDED_SWITCH) {
-                        if (this->unattended_time_sensor_ != nullptr) {
-                            this->unattended_time_sensor_->publish_state(data[0]);
-                        }
+                        // These are switch states, not time values - need binary sensor handlers
+                        // Currently mis-assigned to unattended_time_sensor_ - bug
                     } else
                     if (operation == OP_REQ_UNATTENDED_TIME) {
                         if (this->unattended_time_sensor_ != nullptr) {
@@ -860,13 +860,10 @@ namespace esphome
                     if (operation.first == 0x80 && operation.second == 0x05) {
                     } else
                     {
-                        //ESP_LOGI(TAG, "-----");
-                        //ESP_LOGI(TAG, "%02X %02X (%i)", operation.first, operation.second, dataLen);
-                        // ESP_LOGI(TAG, "CHECK_I: %02X", packetData[len-3]);
-                        // ESP_LOGI(TAG, "CHECK_C: %02X", csum);
-                       // this->print_data("**", data, dataLen);
-                        //ESP_LOGI(TAG, "-----");
-                        ;
+                        ESP_LOGI(TAG, "UNHANDLED: %02X %02X (%i)", operation.first, operation.second, dataLen);
+                        //ESP_LOGI(TAG, "CHECK_I: %02X", packetData[len-3]);
+                        //ESP_LOGI(TAG, "CHECK_C: %c", csum);
+                        //this->print_data("**", data, dataLen);
                     }
                 }
                 return true;
