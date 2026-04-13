@@ -57,6 +57,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   void set_movement_text_sensor(text_sensor::TextSensor *s) { movement_text_sensor_ = s; }
   void set_fall_status_text_sensor(text_sensor::TextSensor *s) { fall_status_text_sensor_ = s; }
   void set_sleep_status_text_sensor(text_sensor::TextSensor *s) { sleep_status_text_sensor_ = s; }
+  void set_static_residency_text_sensor(text_sensor::TextSensor *s) { static_residency_text_sensor_ = s; }
 
   // Binary sensor setter
   void set_presence_binary_sensor(binary_sensor::BinarySensor *s) { presence_sensor_ = s; }
@@ -187,6 +188,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   text_sensor::TextSensor *movement_text_sensor_{nullptr};
   text_sensor::TextSensor *fall_status_text_sensor_{nullptr};
   text_sensor::TextSensor *sleep_status_text_sensor_{nullptr};
+  text_sensor::TextSensor *static_residency_text_sensor_{nullptr};
 
   button::Button *reset_button_{nullptr};
   button::Button *mode_fall_button_{nullptr};
