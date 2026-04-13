@@ -783,9 +783,10 @@ namespace esphome
                         }
                         if (this->sleep_status_text_sensor_ != nullptr) {
                             switch (data[0]) {
-                            case 0: this->sleep_status_text_sensor_->publish_state("awake"); break;
+                            case 0: this->sleep_status_text_sensor_->publish_state("deep_sleep"); break;
                             case 1: this->sleep_status_text_sensor_->publish_state("light_sleep"); break;
-                            case 2: this->sleep_status_text_sensor_->publish_state("deep_sleep"); break;
+                            case 2: this->sleep_status_text_sensor_->publish_state("awake"); break;
+                            case 3: this->sleep_status_text_sensor_->publish_state("none"); break;
                             default: this->sleep_status_text_sensor_->publish_state("unknown"); break;
                             }
                         }
