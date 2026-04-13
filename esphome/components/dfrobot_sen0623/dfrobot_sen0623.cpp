@@ -777,7 +777,7 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_SLEEP_STATE) {
-                        ESP_LOGI(TAG, "Processing SLEEP_STATE: %02X", data[0]);
+                        ESP_LOGI(TAG, "Processing SLEEP_STATE: %02X, sensor=%p, text_sensor=%p", data[0], sleep_state_sensor_, sleep_status_text_sensor_);
                         if (this->sleep_state_sensor_ != nullptr) {
                             this->sleep_state_sensor_->publish_state(data[0]);
                         }
