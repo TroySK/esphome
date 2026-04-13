@@ -822,7 +822,7 @@ namespace esphome
                             this->sleep_quality_rating_sensor_->publish_state(data[0]);
                         }
                     } else
-                    if (operation == OP_REQ_ABNORMAL_STRUGGLE) {
+                    if (operation == OP_REQ_BREATH_RATE) {
                         if (this->breathe_value_sensor_ != nullptr) {
                             this->breathe_value_sensor_->publish_state(data[0]);
                         }
