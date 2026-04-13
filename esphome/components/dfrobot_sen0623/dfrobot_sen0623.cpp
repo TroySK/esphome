@@ -723,9 +723,13 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_STATIC_RESIDENCY_TIME || operation == OP_REQ_FALL_TIME) {
-                        if (this->static_residency_time_sensor_ != nullptr) {
+                        ESP_LOGI(TAG, "Processing STATIC_RESIDENCY_TIME or FALL_TIME, dataLen=%d", dataLen);
+                        if (dataLen >= 4) {
                             uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
-                            this->static_residency_time_sensor_->publish_state(val);
+                            ESP_LOGI(TAG, "Static residency time value: %u", val);
+                            if (this->static_residency_time_sensor_ != nullptr) {
+                                this->static_residency_time_sensor_->publish_state(val);
+                            }
                         }
                     } else
                     if (operation == OP_REQ_FALL_SENSITIVITY) {
