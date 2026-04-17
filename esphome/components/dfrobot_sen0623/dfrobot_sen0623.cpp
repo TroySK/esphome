@@ -1098,9 +1098,6 @@ namespace esphome
             this->drain_uart();
         }
 
-            this->drain_uart();
-        }
-
         void DfrobotSen0623Component::dump_config()
         {
             ESP_LOGCONFIG(TAG, "DfrobotSen0623Component");
