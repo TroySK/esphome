@@ -883,12 +883,58 @@ namespace esphome
                     if (operation.first == 0x07 && operation.second == 0x07) {
                     } else
                     if (operation.first == 0x80 && operation.second == 0x02) {
+                        if (this->movement_text_sensor_ != nullptr) {
+                            switch (data[0]) {
+                            case 0: this->movement_text_sensor_->publish_state("none"); break;
+                            case 1: this->movement_text_sensor_->publish_state("still"); break;
+                            case 2: this->movement_text_sensor_->publish_state("active"); break;
+                            default: ESP_LOGE(TAG, "INVALID MOVEMENT (unsolicited): %02X", data[0]); break;
+                            }
+                        }
                     } else
                     if (operation.first == 0x80 && operation.second == 0x03) {
+                        if (this->human_move_range_sensor_ != nullptr) {
+                            this->human_move_range_sensor_->publish_state(data[0]);
+                        }
                     } else
                     if (operation.first == 0x80 && operation.second == 0x04) {
+                        if (this->human_distance_sensor_ != nullptr) {
+                            this->human_distance_sensor_->publish_state((data[0] << 8) | data[1]);
+                        }
                     } else
                     if (operation.first == 0x80 && operation.second == 0x05) {
+                    } else
+                    if (operation.first == 0x81 && operation.second == 0x02) {
+                        if (this->breath_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->breath_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x85 && operation.second == 0x02) {
+                        if (this->heart_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->heart_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x03) {
+                        if (this->human_move_range_sensor_ != nullptr) {
+                            this->human_move_range_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x04) {
+                        if (this->human_distance_sensor_ != nullptr) {
+                            this->human_distance_sensor_->publish_state((data[0] << 8) | data[1]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x05) {
+                    } else
+                    if (operation.first == 0x81 && operation.second == 0x02) {
+                        if (this->breath_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->breath_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x85 && operation.second == 0x02) {
+                        if (this->heart_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->heart_rate_sensor_->publish_state(data[0]);
+                        }
                     } else
                     {
                         ESP_LOGI(TAG, "UNHANDLED: %02X %02X (%i)", operation.first, operation.second, dataLen);
@@ -949,17 +995,13 @@ namespace esphome
                     this->movement_text_sensor_->publish_state("NA");
                 }
                 
-                // Add delays between requests to prevent watchdog timeout
                 this->request(OP_REQ_MODE);
-                delay(100);  // Small delay
+                delay(100);
                 this->wait_for_packet(OP_REQ_MODE);
                 
                 this->request(OP_RST_SENSOR);
-                delay(100);  // Small delay
+                delay(100);
                 this->wait_for_packet(OP_RST_SENSOR);
-
-                // Don't call sync_configuration() during setup as it's too blocking
-                // Device will sync during normal operation
             } else {
                 this->mark_failed();
             }
@@ -990,6 +1032,19 @@ namespace esphome
             ESP_LOGI(TAG, "Configuration sync complete");
         }
 
+        void DfrobotSen0623Component::drain_uart()
+        {
+            uint8_t packetData[100];
+            while (this->available()) {
+                uint8_t len = this->read_packet(packetData);
+                if (len > 0) {
+                    this->process_packet(packetData, len);
+                } else {
+                    break;
+                }
+            }
+        }
+
         bool _pending_update = false;
         // getData(uint8_t con, uint8_t cmd, uint16_t len, uint8_t *senData, uint8_t *retData)
         void DfrobotSen0623Component::update()
@@ -1002,14 +1057,10 @@ namespace esphome
 
         void DfrobotSen0623Component::loop()
         {
-
-            // Pending reads
             if (_pending_update) {
                 _pending_update = false;
                 this->request(OP_REQ_HEART_RATE);
-                //this->wait_for_packet(OP_REQ_HEART_RATE);
                 this->request(OP_REQ_BREATH_RATE);
-                //this->wait_for_packet(OP_REQ_BREATH_RATE);
                 this->request_breathe_state();
                 this->request_breathe_value();
                 this->request_accumulated_height_duration();
@@ -1021,13 +1072,9 @@ namespace esphome
                 this->request_sleep_composite();
                 this->request_sleep_statistics();
                 this->request(OP_REQ_HUMAN_PRESENCE);
-                //this->wait_for_packet(OP_REQ_HUMAN_PRESENCE);
                 this->request(OP_REQ_HUMAN_MOVEMENT);
-                //this->wait_for_packet(OP_REQ_HUMAN_MOVEMENT);
                 this->request(OP_REQ_HUMAN_DISTANCE);
-                //this->wait_for_packet(OP_REQ_HUMAN_DISTANCE);
                 this->request(OP_REQ_HUMAN_MOVE_RANGE);
-                //this->wait_for_packet(OP_REQ_HUMAN_MOVE_RANGE);
                 this->request_fall_state();
                 this->request_fall_time();
                 this->request_fall_sensitivity();
@@ -1037,9 +1084,6 @@ namespace esphome
                 this->request_in_bed();
                 this->request_wake_duration();
                 this->request_light_sleep();
-                this->request_sleep_quality();
-                this->request_sleep_disturbances();
-                this->request_sleep_quality_rating();
                 this->request_unattended_state();
                 this->request_unattended_time();
                 this->request_sleep_deadline();
@@ -1051,11 +1095,10 @@ namespace esphome
                 this->request(OP_REQ_MOTION_DISTANCE);
             }
 
-            uint8_t packetData[100]; // adjust size as needed
-            uint8_t len = this->read_packet(packetData);
+            this->drain_uart();
+        }
 
-            this->process_packet(packetData, len);
-            delay(50);
+            this->drain_uart();
         }
 
         void DfrobotSen0623Component::dump_config()
