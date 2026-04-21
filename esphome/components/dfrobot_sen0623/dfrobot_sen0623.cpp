@@ -89,6 +89,8 @@ namespace esphome
 
         static const char *TAG = "dfrobot_sen0623.component";
 
+        bool _switch_request_rate = false;
+
         void DfrobotSen0623Component::cmd_reset()
         {
             // uint8_t payload[1] = {0x0f};
@@ -488,6 +490,7 @@ namespace esphome
 
         }
 
+        bool _d = true;
         void DfrobotSen0623Component::forge_packet(uint8_t control, uint8_t command, uint8_t *senData, uint16_t senLen)
         {
             std::vector<uint8_t> buffer;
@@ -517,11 +520,15 @@ namespace esphome
 
         void DfrobotSen0623Component::send_packet(uint8_t *packetData, size_t len)
         {
+
+            if (_d)
+            {
+                this->print_data(">>", packetData, len);
+            }
             for (uint8_t i = 0; i < len; i++)
             {
                 this->write_byte(packetData[i]);
             }
-        }
         }
 
         uint8_t DfrobotSen0623Component::read_packet(uint8_t *packetData)
@@ -542,14 +549,22 @@ namespace esphome
                 }
             }
             // Copy data to packetData and return the length
+            size_t len = buffer.size();
             if (len > 0)
             {
-                size_t max_len = 100;
+                // Make sure to not overflow packetData buffer — adjust max length accordingly
+                // For example, if packetData is fixed size 100 bytes:
+                size_t max_len = 100; // Change as needed
                 if (len > max_len)
                 {
                     len = max_len;
                 }
                 memcpy(packetData, buffer.data(), len);
+            }
+
+            if (_d && len > 0)
+            {
+                this->print_data("<<", packetData, len);
             }
 
             return (uint8_t)len;
@@ -707,19 +722,13 @@ namespace esphome
                             }
                         }
                     } else
-                    if (operation == OP_REQ_STATIC_RESIDENCY_TIME) {
+                    if (operation == OP_REQ_STATIC_RESIDENCY_TIME || operation == OP_REQ_FALL_TIME) {
+                        ESP_LOGI(TAG, "Processing STATIC_RESIDENCY_TIME or FALL_TIME, dataLen=%d", dataLen);
                         if (dataLen >= 4) {
                             uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            ESP_LOGI(TAG, "Static residency time value: %u", val);
                             if (this->static_residency_time_sensor_ != nullptr) {
                                 this->static_residency_time_sensor_->publish_state(val);
-                            }
-                        }
-                    } else
-                    if (operation == OP_REQ_FALL_TIME) {
-                        if (dataLen >= 4) {
-                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
-                            if (this->fall_time_sensor_ != nullptr) {
-                                this->fall_time_sensor_->publish_state(val);
                             }
                         }
                     } else
@@ -779,6 +788,7 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_SLEEP_STATE) {
+                        ESP_LOGI(TAG, "Processing SLEEP_STATE: %02X, sensor=%p, text_sensor=%p", data[0], sleep_state_sensor_, sleep_status_text_sensor_);
                         if (this->sleep_state_sensor_ != nullptr) {
                             this->sleep_state_sensor_->publish_state(data[0]);
                         }
@@ -831,6 +841,8 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_UNATTENDED_STATE || operation == OP_REQ_ABNORMAL_STRUGGLE_SWITCH || operation == OP_REQ_UNATTENDED_SWITCH) {
+                        // These are switch states, not time values - need binary sensor handlers
+                        // Currently mis-assigned to unattended_time_sensor_ - bug
                     } else
                     if (operation == OP_REQ_UNATTENDED_TIME) {
                         if (this->unattended_time_sensor_ != nullptr) {
@@ -848,8 +860,23 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_SLEEP_COMPOSITE) {
+                        // 8 bytes: presence, sleepState, avgRespiration, avgHeartbeat, turnover, largeMove, minorMove, apnea
+                        ESP_LOGI(TAG, "Sleep composite: presence=%d, sleepState=%d, resp=%d, hr=%d, turn=%d", 
+                                 data[0], data[1], data[2], data[3], data[4]);
                     } else
                     if (operation == OP_REQ_SLEEP_STATISTICS) {
+                        // 12 bytes: sleepQuality, sleepTime, wakeDuration, shallow%, deep%, outOfBed, exitCount, turnOver, avgResp, avgHR, apnea
+                        ESP_LOGI(TAG, "Sleep stats: quality=%d, time=%d, wake=%d, shallow=%d, deep=%d", 
+                                 data[0], data[1], data[2], data[3], data[4]);
+                    } else
+                    if (operation == OP_REQ_STATIC_RESIDENCY_TIME) {
+                        ESP_LOGI(TAG, "Static residency time: %02X %02X %02X %02X", data[0], data[1], data[2], data[3]);
+                        if (dataLen >= 4) {
+                            uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
+                            if (this->static_residency_time_sensor_ != nullptr) {
+                                this->static_residency_time_sensor_->publish_state(val);
+                            }
+                        }
                     } else
                     if (operation.first == 0x01 && operation.second == 0x01) {
                     } else
@@ -865,6 +892,50 @@ namespace esphome
                             }
                         }
                     } else
+                    if (operation.first == 0x80 && operation.second == 0x03) {
+                        if (this->human_move_range_sensor_ != nullptr) {
+                            this->human_move_range_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x04) {
+                        if (this->human_distance_sensor_ != nullptr) {
+                            this->human_distance_sensor_->publish_state((data[0] << 8) | data[1]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x05) {
+                    } else
+                    if (operation.first == 0x81 && operation.second == 0x02) {
+                        if (this->breath_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->breath_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x85 && operation.second == 0x02) {
+                        if (this->heart_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->heart_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x03) {
+                        if (this->human_move_range_sensor_ != nullptr) {
+                            this->human_move_range_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x04) {
+                        if (this->human_distance_sensor_ != nullptr) {
+                            this->human_distance_sensor_->publish_state((data[0] << 8) | data[1]);
+                        }
+                    } else
+                    if (operation.first == 0x80 && operation.second == 0x05) {
+                    } else
+                    if (operation.first == 0x81 && operation.second == 0x02) {
+                        if (this->breath_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->breath_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
+                    if (operation.first == 0x85 && operation.second == 0x02) {
+                        if (this->heart_rate_sensor_ != nullptr && data[0] > 0) {
+                            this->heart_rate_sensor_->publish_state(data[0]);
+                        }
+                    } else
                     {
                         ESP_LOGI(TAG, "UNHANDLED: %02X %02X (%i)", operation.first, operation.second, dataLen);
                         //ESP_LOGI(TAG, "CHECK_I: %02X", packetData[len-3]);
@@ -875,6 +946,37 @@ namespace esphome
                 return true;
             }
             return false;
+        }
+
+        void DfrobotSen0623Component::print_data(std::string tag, const uint8_t *bytes, size_t len)
+        {
+            std::string out;
+            char buf[5];
+            for (size_t i = 0; i < len; i++)
+            {
+                if (i > 0)
+                {
+                    out += " ";
+                }
+                sprintf(buf, "%02X", bytes[i]);
+                out += buf;
+            }
+            //ESP_LOGI(TAG, "%s %s", tag.c_str(), out.c_str());
+
+            out = "";
+            for (size_t i = 0; i < len; i++)
+            {
+                if (i > 2)
+                {
+                    out += " ";
+                }
+                if (i > 1 && i < len - 3 && i != 4 && i !=5) {
+                  sprintf(buf, "%02X", bytes[i]);
+                  out += buf;
+                }
+            }
+            ESP_LOGI(TAG, "%s %s", tag.c_str(), out.c_str());
+            
         }
 
         void DfrobotSen0623Component::setup()
@@ -905,6 +1007,31 @@ namespace esphome
             }
         }
 
+        void DfrobotSen0623Component::sync_configuration()
+        {
+            ESP_LOGI(TAG, "Syncing configuration from device...");
+
+            this->request(OP_REQ_MODE);
+            uint8_t mode = this->wait_for_packet(OP_REQ_MODE);
+            if (mode != 0xf5 && this->status_text_sensor_ != nullptr) {
+                const char* mode_str = (mode == 1) ? "fall" : (mode == 2) ? "sleep" : "error";
+                this->status_text_sensor_->publish_state(mode_str);
+            }
+
+            this->request(OP_INIT);
+            uint8_t hp_led = this->wait_for_packet(OP_INIT);
+            if (hp_led != 0xf5 && this->hp_led_switch_ != nullptr) {
+                this->hp_led_switch_->publish_state(hp_led == 1);
+            }
+
+            this->request(OP_REQ_FALL_LED);
+            uint8_t fall_led = this->wait_for_packet(OP_REQ_FALL_LED);
+            if (fall_led != 0xf5) {
+            }
+
+            ESP_LOGI(TAG, "Configuration sync complete");
+        }
+
         void DfrobotSen0623Component::drain_uart()
         {
             uint8_t packetData[100];
@@ -918,17 +1045,20 @@ namespace esphome
             }
         }
 
+        bool _pending_update = false;
+        // getData(uint8_t con, uint8_t cmd, uint16_t len, uint8_t *senData, uint8_t *retData)
         void DfrobotSen0623Component::update()
         {
-            if (switch_request_rate_) {
-                pending_update_ = true;
+            if (_switch_request_rate)
+            {
+                _pending_update = true;
             }
         }
 
         void DfrobotSen0623Component::loop()
         {
-            if (pending_update_) {
-                pending_update_ = false;
+            if (_pending_update) {
+                _pending_update = false;
                 this->request(OP_REQ_HEART_RATE);
                 delay(5);
                 this->request(OP_REQ_BREATH_RATE);
@@ -1008,20 +1138,28 @@ namespace esphome
 
         void DfrobotSen0623Component::set_switch_request_rate(bool val)
         {
-            switch_request_rate_ = val;
             if (this->request_rate_switch_ != nullptr) {
-                this->request_rate_switch_->publish_state(val);
+                _switch_request_rate = val;
+                this->request_rate_switch_->publish_state(_switch_request_rate);
             }
         }
 
         void DfrobotSen0623Component::set_switch_hp_led(bool val)
         {
-            if (this->hp_led_switch_ != nullptr) {
+            if (this->hp_led_switch_ != nullptr)
+            {
                 this->hp_led_switch_->publish_state(val);
 
                 uint8_t data[1];
-                data[0] = val ? 1 : 0;
-                this->forge_packet(0x01, 0x03, data, sizeof(data));
+                if (val)
+                {
+                    data[0] = 1;
+                }
+                else
+                {
+                    data[0] = 0;
+                }
+                this->forge_packet(0x01, 0x03, data, sizeof(data)); // HP
             }
         }
 

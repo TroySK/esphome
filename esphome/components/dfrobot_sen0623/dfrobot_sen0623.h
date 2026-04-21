@@ -44,6 +44,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   uint8_t wait_for_packet(std::pair<uint8_t, uint8_t> operation);
   uint8_t read_packet(uint8_t *packetData);
 
+  void print_data(std::string tag, const uint8_t *bytes, size_t len);
+
   // Core sensor setters
   void set_heart_rate_sensor(sensor::Sensor *s) { heart_rate_sensor_ = s; }
   void set_breath_rate_sensor(sensor::Sensor *s) { breath_rate_sensor_ = s; }
@@ -173,13 +175,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   void loop() override;
   void update() override;
   void dump_config() override;
+  void sync_configuration();
   void drain_uart();
-
-  bool switch_request_rate_{false};
-  bool pending_update_{false};
-
-  bool switch_request_rate_{false};
-  bool pending_update_{false};
 
  protected:
   sensor::Sensor *heart_rate_sensor_{nullptr};
