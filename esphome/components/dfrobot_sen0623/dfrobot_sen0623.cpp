@@ -597,6 +597,10 @@ namespace esphome
             if (len > 5)
             {
                 uint8_t dataLen = ((uint16_t)packetData[4] << 8) | packetData[5];
+                // Ensure we have enough data for header + payload + checksum
+                if (len < 6 + dataLen) {
+                    return false;
+                }
                 uint8_t csum = 0;
                 for (uint8_t i = 0; i < 6 + dataLen; i++)
                 {
