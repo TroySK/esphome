@@ -46,6 +46,10 @@ uart:
 
 dfrobot_sen0623:
   update_interval: 5s
+  install_angle_x: 0
+  install_angle_y: 0
+  install_angle_z: 0
+  install_height: 250
 
 # Core sensors
 sensor:
