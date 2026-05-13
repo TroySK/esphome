@@ -24,6 +24,7 @@ std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_ANGLE = {0x06, 0x81};
 std::pair<uint8_t, uint8_t> OP_SET_INSTALL_HEIGHT = {0x06, 0x02};
 std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_HEIGHT = {0x06, 0x82};
 std::pair<uint8_t, uint8_t> OP_AUTO_MEASURE_HEIGHT = {0x83, 0x90};
+std::pair<uint8_t, uint8_t> OP_SENSOR_RET = {0x01, 0x04};
 
 std::pair<uint8_t, uint8_t> OP_REQ_FALL_STATE = {0x83, 0x81};
 std::pair<uint8_t, uint8_t> OP_REQ_STATIC_RESIDENCY_STATE = {0x83, 0x85};
@@ -127,6 +128,8 @@ namespace esphome
             data[5] = z & 0xff;
             this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
             this->request_install_angle();
+            uint8_t ret[1] = {0x00};
+            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
         }
 
         void DfrobotSen0623Component::cmd_set_install_height(uint16_t height)
@@ -136,6 +139,28 @@ namespace esphome
             data[1] = height & 0xff;
             this->forge_packet(OP_SET_INSTALL_HEIGHT.first, OP_SET_INSTALL_HEIGHT.second, data, 2);
             this->request_install_height();
+            uint8_t ret[1] = {0x00};
+            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
+        }
+
+        void DfrobotSen0623Component::set_install_height(uint16_t height)
+        {
+            this->cmd_set_install_height(height);
+        }
+
+        void DfrobotSen0623Component::set_install_angle(int16_t x, int16_t y, int16_t z)
+        {
+            uint8_t data[6];
+            data[0] = (x >> 8) & 0xff;
+            data[1] = x & 0xff;
+            data[2] = (y >> 8) & 0xff;
+            data[3] = y & 0xff;
+            data[4] = (z >> 8) & 0xff;
+            data[5] = z & 0xff;
+            this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
+            this->request_install_angle();
+            uint8_t ret[1] = {0x00};
+            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
         }
 
         void DfrobotSen0623Component::cmd_auto_measure_height()
