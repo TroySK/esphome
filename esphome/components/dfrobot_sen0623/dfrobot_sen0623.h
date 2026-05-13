@@ -79,6 +79,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   // Fall mode - installation
   void cmd_set_install_angle(int16_t x, int16_t y, int16_t z);
   void cmd_set_install_height(uint16_t height);
+  void set_install_angle(int16_t x, int16_t y, int16_t z);
+  void set_install_height(uint16_t height);
   void cmd_auto_measure_height();
   void request_install_angle();
   void request_install_height();
