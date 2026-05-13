@@ -143,24 +143,14 @@ namespace esphome
             this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
         }
 
-        void DfrobotSen0623Component::set_install_height(uint16_t height)
+        void DfrobotSen0623Component::apply_install_config()
         {
-            this->cmd_set_install_height(height);
-        }
-
-        void DfrobotSen0623Component::set_install_angle(int16_t x, int16_t y, int16_t z)
-        {
-            uint8_t data[6];
-            data[0] = (x >> 8) & 0xff;
-            data[1] = x & 0xff;
-            data[2] = (y >> 8) & 0xff;
-            data[3] = y & 0xff;
-            data[4] = (z >> 8) & 0xff;
-            data[5] = z & 0xff;
-            this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
-            this->request_install_angle();
-            uint8_t ret[1] = {0x00};
-            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
+            if (this->install_height_ >= 0) {
+                this->cmd_set_install_height(this->install_height_);
+            }
+            if (this->install_angle_x_ != 0 || this->install_angle_y_ != 0 || this->install_angle_z_ != 0) {
+                this->cmd_set_install_angle(this->install_angle_x_, this->install_angle_y_, this->install_angle_z_);
+            }
         }
 
         void DfrobotSen0623Component::cmd_auto_measure_height()
@@ -1031,6 +1021,8 @@ namespace esphome
                 this->request(OP_RST_SENSOR);
                 delay(100);
                 this->wait_for_packet(OP_RST_SENSOR);
+
+                this->apply_install_config();
             } else {
                 this->mark_failed();
             }
