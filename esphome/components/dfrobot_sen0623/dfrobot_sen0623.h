@@ -79,8 +79,12 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   // Fall mode - installation
   void cmd_set_install_angle(int16_t x, int16_t y, int16_t z);
   void cmd_set_install_height(uint16_t height);
-  void set_install_angle(int16_t x, int16_t y, int16_t z);
-  void set_install_height(uint16_t height);
+  void set_install_angle(int16_t x, int16_t y, int16_t z) {
+    install_angle_x_ = x;
+    install_angle_y_ = y;
+    install_angle_z_ = z;
+  }
+  void set_install_height(uint16_t height) { install_height_ = height; }
   void cmd_auto_measure_height();
   void request_install_angle();
   void request_install_height();
@@ -179,6 +183,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   void dump_config() override;
   void sync_configuration();
   void drain_uart();
+  void apply_install_config();
 
  protected:
   sensor::Sensor *heart_rate_sensor_{nullptr};
@@ -227,6 +232,11 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   sensor::Sensor *sleep_deadline_sensor_{nullptr};
   sensor::Sensor *breathe_state_sensor_{nullptr};
   sensor::Sensor *breathe_value_sensor_{nullptr};
+
+  int16_t install_angle_x_{0};
+  int16_t install_angle_y_{0};
+  int16_t install_angle_z_{0};
+  int16_t install_height_{-1};
 };
 
 }  // namespace dfrobot_sen0623
