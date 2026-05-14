@@ -107,6 +107,7 @@ namespace esphome
             data[0] = {MODE_FALL};
             this->forge_packet(OP_SET_MODE.first, OP_SET_MODE.second, data, 1);
             this->request(OP_REQ_MODE);
+            this->apply_install_config();
         }
 
         void DfrobotSen0623Component::cmd_mode_sleep()
