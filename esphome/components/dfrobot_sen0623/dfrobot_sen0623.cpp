@@ -24,7 +24,7 @@ std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_ANGLE = {0x06, 0x81};
 std::pair<uint8_t, uint8_t> OP_SET_INSTALL_HEIGHT = {0x06, 0x02};
 std::pair<uint8_t, uint8_t> OP_REQ_INSTALL_HEIGHT = {0x06, 0x82};
 std::pair<uint8_t, uint8_t> OP_AUTO_MEASURE_HEIGHT = {0x83, 0x90};
-std::pair<uint8_t, uint8_t> OP_SENSOR_RET = {0x01, 0x04};
+
 
 std::pair<uint8_t, uint8_t> OP_REQ_FALL_STATE = {0x83, 0x81};
 std::pair<uint8_t, uint8_t> OP_REQ_STATIC_RESIDENCY_STATE = {0x83, 0x85};
@@ -128,8 +128,6 @@ namespace esphome
             data[5] = z & 0xff;
             this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
             this->request_install_angle();
-            uint8_t ret[1] = {0x00};
-            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
         }
 
         void DfrobotSen0623Component::cmd_set_install_height(uint16_t height)
@@ -139,17 +137,31 @@ namespace esphome
             data[1] = height & 0xff;
             this->forge_packet(OP_SET_INSTALL_HEIGHT.first, OP_SET_INSTALL_HEIGHT.second, data, 2);
             this->request_install_height();
-            uint8_t ret[1] = {0x00};
-            this->forge_packet(OP_SENSOR_RET.first, OP_SENSOR_RET.second, ret, 1);
         }
 
         void DfrobotSen0623Component::apply_install_config()
         {
+            this->drain_uart();
+
             if (this->install_height_ >= 0) {
-                this->cmd_set_install_height(this->install_height_);
+                uint8_t data[2];
+                data[0] = (this->install_height_ >> 8) & 0xff;
+                data[1] = this->install_height_ & 0xff;
+                this->forge_packet(OP_SET_INSTALL_HEIGHT.first, OP_SET_INSTALL_HEIGHT.second, data, 2);
+                delay(100);
+                this->drain_uart();
             }
             if (this->install_angle_x_ != 0 || this->install_angle_y_ != 0 || this->install_angle_z_ != 0) {
-                this->cmd_set_install_angle(this->install_angle_x_, this->install_angle_y_, this->install_angle_z_);
+                uint8_t data[6];
+                data[0] = (this->install_angle_x_ >> 8) & 0xff;
+                data[1] = this->install_angle_x_ & 0xff;
+                data[2] = (this->install_angle_y_ >> 8) & 0xff;
+                data[3] = this->install_angle_y_ & 0xff;
+                data[4] = (this->install_angle_z_ >> 8) & 0xff;
+                data[5] = this->install_angle_z_ & 0xff;
+                this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
+                delay(100);
+                this->drain_uart();
             }
         }
 
