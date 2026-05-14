@@ -1033,6 +1033,7 @@ namespace esphome
                 this->request(OP_RST_SENSOR);
                 delay(100);
                 this->wait_for_packet(OP_RST_SENSOR);
+                delay(500);
 
                 this->apply_install_config();
             } else {
