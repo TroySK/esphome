@@ -22,6 +22,9 @@ Sen0623RequestRateSwitch = dfrobot_sen0623_ns.class_(
 Sen0623HPLedSwitch = dfrobot_sen0623_ns.class_(
     "Sen0623HPLedSwitch", DfrobotSen0623Switch
 )
+Sen0623AutoModeSwitch = dfrobot_sen0623_ns.class_(
+    "Sen0623AutoModeSwitch", DfrobotSen0623Switch
+)
 
 
 def _switch_schema(class_: MockObjClass) -> cv.Schema:
@@ -45,6 +48,7 @@ CONFIG_SCHEMA = cv.typed_schema(
     {
         "request_rate": _switch_schema(Sen0623RequestRateSwitch),
         "hp_led": _switch_schema(Sen0623HPLedSwitch),
+        "auto_mode": _switch_schema(Sen0623AutoModeSwitch),
     }
 )
 

@@ -20,5 +20,10 @@ class Sen0623HPLedSwitch : public DfrobotSen0623Switch {
   void write_state(bool state) override;
 };
 
+class Sen0623AutoModeSwitch : public DfrobotSen0623Switch {
+ public:
+  void write_state(bool state) override;
+};
+
 }  // namespace dfrobot_sen0623
 }  // namespace esphome
