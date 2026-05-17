@@ -815,6 +815,7 @@ namespace esphome
                         }
                     } else
                     if (operation == OP_REQ_IN_BED) {
+                        this->set_in_bed_state(data[0]);
                         if (this->in_bed_sensor_ != nullptr) {
                             this->in_bed_sensor_->publish_state(data[0]);
                         }
@@ -1164,6 +1165,18 @@ namespace esphome
             }
 
             this->drain_uart();
+
+            if (this->auto_mode_ && (bool)this->in_bed_state_ != (bool)this->last_auto_mode_in_bed_state_) {
+                if (millis() - this->in_bed_changed_at_ > 30000) {
+                    this->last_auto_mode_in_bed_state_ = this->in_bed_state_;
+                    ESP_LOGI(TAG, "Auto mode switching to %s mode", this->in_bed_state_ ? "sleep" : "fall");
+                    if (this->in_bed_state_) {
+                        this->cmd_mode_sleep();
+                    } else {
+                        this->cmd_mode_fall();
+                    }
+                }
+            }
         }
 
         void DfrobotSen0623Component::dump_config()
@@ -1195,6 +1208,30 @@ namespace esphome
                     data[0] = 0;
                 }
                 this->forge_packet(0x01, 0x03, data, sizeof(data)); // HP
+            }
+        }
+
+        void DfrobotSen0623Component::set_in_bed_state(int state) {
+            bool new_state = (state != 0);
+            if (new_state != this->in_bed_state_) {
+                this->in_bed_state_ = new_state;
+                this->in_bed_changed_at_ = millis();
+            }
+        }
+
+        void DfrobotSen0623Component::set_switch_auto_mode(bool val) {
+            if (this->auto_mode_switch_ != nullptr) {
+                this->auto_mode_ = val;
+                this->auto_mode_switch_->publish_state(val);
+                if (val) {
+                    this->last_auto_mode_in_bed_state_ = this->in_bed_state_;
+                    ESP_LOGI(TAG, "Auto mode enabled, initial switch to %s mode", this->in_bed_state_ ? "sleep" : "fall");
+                    if (this->in_bed_state_) {
+                        this->cmd_mode_sleep();
+                    } else {
+                        this->cmd_mode_fall();
+                    }
+                }
             }
         }
 
