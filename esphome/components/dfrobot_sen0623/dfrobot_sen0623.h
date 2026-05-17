@@ -30,6 +30,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
 #ifdef USE_SWITCH
   SUB_SWITCH(request_rate)
   SUB_SWITCH(hp_led)
+  SUB_SWITCH(auto_mode)
 #endif
 
  public:
@@ -70,6 +71,8 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   // Switch action setters
   void set_switch_request_rate(bool val);
   void set_switch_hp_led(bool val);
+  void set_switch_auto_mode(bool val);
+  void set_in_bed_state(int state);
 
   // Action methods
   void cmd_reset();
@@ -237,6 +240,11 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   int16_t install_angle_y_{0};
   int16_t install_angle_z_{0};
   int16_t install_height_{-1};
+
+  bool auto_mode_{false};
+  bool in_bed_state_{false};
+  int last_auto_mode_in_bed_state_{-1};
+  uint32_t in_bed_changed_at_{0};
 };
 
 }  // namespace dfrobot_sen0623

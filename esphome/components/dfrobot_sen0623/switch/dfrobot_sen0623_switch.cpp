@@ -10,5 +10,9 @@ void Sen0623RequestRateSwitch::write_state(bool state) {
 void Sen0623HPLedSwitch::write_state(bool state) {
   this->parent_->set_switch_hp_led(state);
 }
+
+void Sen0623AutoModeSwitch::write_state(bool state) {
+  this->parent_->set_switch_auto_mode(state);
+}
 }  // namespace dfrobot_sen0623
 }  // namespace esphome
