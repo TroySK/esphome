@@ -185,6 +185,9 @@ switch:
   - platform: dfrobot_sen0623
     type: hp_led
     name: "HP Led Enabled"
+  - platform: dfrobot_sen0623
+    type: auto_mode
+    name: "Auto mode"
 
 button:
   - platform: dfrobot_sen0623
