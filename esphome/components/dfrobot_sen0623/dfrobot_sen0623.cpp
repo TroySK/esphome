@@ -1137,6 +1137,16 @@ namespace esphome
 
             this->drain_uart();
 
+            if (this->auto_mode_) {
+                uint32_t now = millis();
+                if (now - this->last_in_bed_request_ > 10000) {
+                    this->last_in_bed_request_ = now;
+                    this->request_in_bed();
+                    delay(5);
+                    this->drain_uart();
+                }
+            }
+
             if (this->auto_mode_ && (bool)this->in_bed_state_ != (bool)this->last_auto_mode_in_bed_state_) {
                 if (millis() - this->in_bed_changed_at_ > 30000) {
                     this->last_auto_mode_in_bed_state_ = this->in_bed_state_;
