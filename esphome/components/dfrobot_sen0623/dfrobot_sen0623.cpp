@@ -521,29 +521,30 @@ namespace esphome
         bool _d = true;
         void DfrobotSen0623Component::forge_packet(uint8_t control, uint8_t command, uint8_t *senData, uint16_t senLen)
         {
-            std::vector<uint8_t> buffer;
-            buffer.push_back(0x53);
-            buffer.push_back(0x59);
-            buffer.push_back(control);
-            buffer.push_back(command);
-            buffer.push_back((senLen >> 8) & 0xff);
-            buffer.push_back(senLen & 0xff);
-            for (uint8_t i = 0; i < senLen; i++)
+            // Fixed buffer: header(2) + control(1) + command(1) + length(2) + data + checksum(1) + footer(2)
+            uint8_t buffer[32];
+            uint8_t idx = 0;
+            buffer[idx++] = 0x53;
+            buffer[idx++] = 0x59;
+            buffer[idx++] = control;
+            buffer[idx++] = command;
+            buffer[idx++] = (senLen >> 8) & 0xff;
+            buffer[idx++] = senLen & 0xff;
+            for (uint16_t i = 0; i < senLen && idx < sizeof(buffer) - 3; i++)
             {
-                buffer.push_back(senData[i]);
+                buffer[idx++] = senData[i];
             }
             // Calculate check
             uint8_t crSum = 0;
-            for (uint8_t i = 0; i < buffer.size(); i++)
+            for (uint8_t i = 0; i < idx; i++)
             {
-                crSum += buffer.data()[i];
+                crSum += buffer[i];
             }
-            buffer.push_back(crSum & 0xff);
-            buffer.push_back(0x54);
-            buffer.push_back(0x43);
+            buffer[idx++] = crSum & 0xff;
+            buffer[idx++] = 0x54;
+            buffer[idx++] = 0x43;
 
-            // this->print_data("XX", buffer.data(), buffer.size());
-            this->send_packet(buffer.data(), buffer.size());
+            this->send_packet(buffer, idx);
         }
 
         void DfrobotSen0623Component::send_packet(uint8_t *packetData, size_t len)
@@ -564,30 +565,17 @@ namespace esphome
             if (!this->available()) {
                 return 0;
             }
-            std::vector<uint8_t> buffer;
+            uint8_t len = 0;
             uint8_t byte;
+            const size_t max_len = 100;
 
-            // Read bytes until '\n' delimiter or no more bytes available
-            while (this->available() && this->read_byte(&byte))
+            while (this->available() && this->read_byte(&byte) && len < max_len)
             {
-                buffer.push_back(byte);
+                packetData[len++] = byte;
                 if (byte == '\n')
                 {
                     break;
                 }
-            }
-            // Copy data to packetData and return the length
-            size_t len = buffer.size();
-            if (len > 0)
-            {
-                // Make sure to not overflow packetData buffer — adjust max length accordingly
-                // For example, if packetData is fixed size 100 bytes:
-                size_t max_len = 100; // Change as needed
-                if (len > max_len)
-                {
-                    len = max_len;
-                }
-                memcpy(packetData, buffer.data(), len);
             }
 
             if (_d && len > 0)
@@ -595,7 +583,7 @@ namespace esphome
                 this->print_data("<<", packetData, len);
             }
 
-            return (uint8_t)len;
+            return len;
         }
 
         uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation) {
