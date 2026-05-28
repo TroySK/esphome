@@ -90,7 +90,6 @@ namespace esphome
 
         static const char *TAG = "dfrobot_sen0623.component";
 
-        bool _switch_request_rate = false;
 
         void DfrobotSen0623Component::cmd_reset()
         {
@@ -518,7 +517,6 @@ namespace esphome
 
         }
 
-        bool _d = true;
         void DfrobotSen0623Component::forge_packet(uint8_t control, uint8_t command, uint8_t *senData, uint16_t senLen)
         {
             // Fixed buffer: header(2) + control(1) + command(1) + length(2) + data + checksum(1) + footer(2)
@@ -550,7 +548,7 @@ namespace esphome
         void DfrobotSen0623Component::send_packet(uint8_t *packetData, size_t len)
         {
 
-            if (_d)
+            if (this->debug_output_)
             {
                 this->print_data(">>", packetData, len);
             }
@@ -578,7 +576,7 @@ namespace esphome
                 }
             }
 
-            if (_d && len > 0)
+            if (this->debug_output_ && len > 0)
             {
                 this->print_data("<<", packetData, len);
             }
@@ -1071,7 +1069,7 @@ namespace esphome
 
         void DfrobotSen0623Component::update()
         {
-            if (_switch_request_rate)
+            if (this->switch_request_rate_)
             {
                 this->pending_update_ = true;
             }
@@ -1160,8 +1158,8 @@ namespace esphome
         void DfrobotSen0623Component::set_switch_request_rate(bool val)
         {
             if (this->request_rate_switch_ != nullptr) {
-                _switch_request_rate = val;
-                this->request_rate_switch_->publish_state(_switch_request_rate);
+                this->switch_request_rate_ = val;
+                this->request_rate_switch_->publish_state(this->switch_request_rate_);
             }
         }
 
