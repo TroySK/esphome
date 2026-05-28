@@ -245,6 +245,13 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   bool in_bed_state_{false};
   int last_auto_mode_in_bed_state_{-1};
   uint32_t in_bed_changed_at_{0};
+
+  // Non-blocking update state machine
+  bool pending_update_{false};
+  int update_phase_{0};
+  uint32_t last_request_time_{0};
+  static const uint32_t REQUEST_INTERVAL_MS = 5;
+  void send_next_update_request();
 };
 
 }  // namespace dfrobot_sen0623

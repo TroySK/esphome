@@ -1081,87 +1081,72 @@ namespace esphome
             }
         }
 
-        bool _pending_update = false;
-        // getData(uint8_t con, uint8_t cmd, uint16_t len, uint8_t *senData, uint8_t *retData)
         void DfrobotSen0623Component::update()
         {
             if (_switch_request_rate)
             {
-                _pending_update = true;
+                this->pending_update_ = true;
             }
+        }
+
+        void DfrobotSen0623Component::send_next_update_request()
+        {
+            switch (this->update_phase_) {
+                case 0: this->request(OP_REQ_HEART_RATE); break;
+                case 1: this->request(OP_REQ_BREATH_RATE); break;
+                case 2: this->request_breathe_state(); break;
+                case 3: this->request_breathe_value(); break;
+                case 4: this->request_accumulated_height_duration(); break;
+                case 5: this->request_deep_sleep(); break;
+                case 6: this->request_sleep_state(); break;
+                case 7: this->request_sleep_quality(); break;
+                case 8: this->request_sleep_disturbances(); break;
+                case 9: this->request_sleep_quality_rating(); break;
+                case 10: this->request_sleep_composite(); break;
+                case 11: this->request_sleep_statistics(); break;
+                case 12: this->request(OP_REQ_HUMAN_PRESENCE); break;
+                case 13: this->request(OP_REQ_HUMAN_MOVEMENT); break;
+                case 14: this->request(OP_REQ_HUMAN_DISTANCE); break;
+                case 15: this->request(OP_REQ_HUMAN_MOVE_RANGE); break;
+                case 16: this->request_fall_state(); break;
+                case 17: this->request_fall_time(); break;
+                case 18: this->request_fall_sensitivity(); break;
+                case 19: this->request_fall_break_height(); break;
+                case 20: this->request_install_angle(); break;
+                case 21: this->request_install_height(); break;
+                case 22: this->request_in_bed(); break;
+                case 23: this->request_wake_duration(); break;
+                case 24: this->request_light_sleep(); break;
+                case 25: this->request_unattended_state(); break;
+                case 26: this->request_unattended_time(); break;
+                case 27: this->request_sleep_deadline(); break;
+                case 28: this->request_static_residency_state(); break;
+                case 29: this->request_static_residency_time(); break;
+                case 30: this->request_track(); break;
+                case 31: this->request_unmanned_time(); break;
+                case 32: this->request(OP_REQ_SEATED_DISTANCE); break;
+                case 33: this->request(OP_REQ_MOTION_DISTANCE); break;
+                default:
+                    this->update_phase_ = 0;
+                    this->pending_update_ = false;
+                    return;
+            }
+            this->update_phase_++;
+            this->last_request_time_ = millis();
         }
 
         void DfrobotSen0623Component::loop()
         {
-            if (_pending_update) {
-                _pending_update = false;
-                this->request(OP_REQ_HEART_RATE);
-                delay(5);
-                this->request(OP_REQ_BREATH_RATE);
-                delay(5);
-                this->request_breathe_state();
-                delay(5);
-                this->request_breathe_value();
-                delay(5);
-                this->request_accumulated_height_duration();
-                delay(5);
-                this->request_deep_sleep();
-                delay(5);
-                this->request_sleep_state();
-                delay(5);
-                this->request_sleep_quality();
-                delay(5);
-                this->request_sleep_disturbances();
-                delay(5);
-                this->request_sleep_quality_rating();
-                delay(5);
-                this->request_sleep_composite();
-                delay(5);
-                this->request_sleep_statistics();
-                delay(5);
-                this->request(OP_REQ_HUMAN_PRESENCE);
-                delay(5);
-                this->request(OP_REQ_HUMAN_MOVEMENT);
-                delay(5);
-                this->request(OP_REQ_HUMAN_DISTANCE);
-                delay(5);
-                this->request(OP_REQ_HUMAN_MOVE_RANGE);
-                delay(5);
-                this->request_fall_state();
-                delay(5);
-                this->request_fall_time();
-                delay(5);
-                this->request_fall_sensitivity();
-                delay(5);
-                this->request_fall_break_height();
-                delay(5);
-                this->request_install_angle();
-                delay(5);
-                this->request_install_height();
-                delay(5);
-                this->request_in_bed();
-                delay(5);
-                this->request_wake_duration();
-                delay(5);
-                this->request_light_sleep();
-                delay(5);
-                this->request_unattended_state();
-                delay(5);
-                this->request_unattended_time();
-                delay(5);
-                this->request_sleep_deadline();
-                delay(5);
-                this->request_static_residency_state();
-                delay(5);
-                this->request_static_residency_time();
-                delay(5);
-                this->request_track();
-                delay(5);
-                this->request_unmanned_time();
-                delay(5);
-                this->request(OP_REQ_SEATED_DISTANCE);
-                delay(5);
-                this->request(OP_REQ_MOTION_DISTANCE);
+            if (this->pending_update_ && this->update_phase_ == 0) {
+                this->update_phase_ = 1;
+                this->last_request_time_ = 0;  // Send first request immediately
+            }
+
+            if (this->pending_update_ && this->update_phase_ > 0) {
+                uint32_t now = millis();
+                if (now - this->last_request_time_ >= REQUEST_INTERVAL_MS || this->last_request_time_ == 0) {
+                    this->send_next_update_request();
+                }
             }
 
             this->drain_uart();
