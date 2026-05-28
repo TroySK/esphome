@@ -570,6 +570,10 @@ namespace esphome
             while (this->available() && this->read_byte(&byte) && len < max_len)
             {
                 packetData[len++] = byte;
+                if (len >= 2 && packetData[len - 2] == 0x54 && packetData[len - 1] == 0x43)
+                {
+                    break;
+                }
             }
 
             if (this->debug_output_ && len > 0)
