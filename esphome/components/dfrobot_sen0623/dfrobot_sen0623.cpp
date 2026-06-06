@@ -148,8 +148,6 @@ namespace esphome
                 data[0] = (this->install_height_ >> 8) & 0xff;
                 data[1] = this->install_height_ & 0xff;
                 this->forge_packet(OP_SET_INSTALL_HEIGHT.first, OP_SET_INSTALL_HEIGHT.second, data, 2);
-                delay(20);
-                this->drain_uart();
             }
             if (this->install_angle_x_ != 0 || this->install_angle_y_ != 0 || this->install_angle_z_ != 0) {
                 uint8_t data[6];
@@ -160,8 +158,6 @@ namespace esphome
                 data[4] = (this->install_angle_z_ >> 8) & 0xff;
                 data[5] = this->install_angle_z_ & 0xff;
                 this->forge_packet(OP_SET_INSTALL_ANGLE.first, OP_SET_INSTALL_ANGLE.second, data, 6);
-                delay(20);
-                this->drain_uart();
             }
         }
 
