@@ -607,24 +607,29 @@ namespace esphome
 
         bool DfrobotSen0623Component::process_packet(uint8_t *packetData, size_t len)
         {
+            static const size_t MAX_DATA_LEN = 64;
             // Process only valid packets
             if (len > 5)
             {
-                uint8_t dataLen = ((uint16_t)packetData[4] << 8) | packetData[5];
+                uint16_t dataLen = ((uint16_t)packetData[4] << 8) | packetData[5];
                 // Ensure we have enough data for header + payload + checksum
-                if (len < 6 + dataLen) {
+                if (len < (size_t)6 + dataLen) {
                     return false;
                 }
-                uint8_t csum = 0;
-                for (uint8_t i = 0; i < 6 + dataLen; i++)
+                if (dataLen > MAX_DATA_LEN) {
+                    ESP_LOGW(TAG, "Packet dataLen %u exceeds buffer (%u); dropping", dataLen, (unsigned)MAX_DATA_LEN);
+                    return false;
+                }
+                uint16_t csum = 0;
+                for (uint16_t i = 0; i < (uint16_t)(6 + dataLen); i++)
                 {
                     csum += packetData[i];
                 }
                 csum = csum & 0xff;
-                if (packetData[0] == 0x53 && packetData[1] == 0x59 && packetData[len - 2] == 0x54 && packetData[len - 1] == 0x43 && csum == packetData[len - 3])
+                if (packetData[0] == 0x53 && packetData[1] == 0x59 && packetData[len - 2] == 0x54 && packetData[len - 1] == 0x43 && (uint8_t)csum == packetData[len - 3])
                 {
-                    uint8_t data[dataLen];
-                    for (uint8_t i = 0; i < dataLen; i++)
+                    uint8_t data[MAX_DATA_LEN];
+                    for (uint16_t i = 0; i < dataLen; i++)
                     {
                         data[i] = packetData[6 + i];
                     }
