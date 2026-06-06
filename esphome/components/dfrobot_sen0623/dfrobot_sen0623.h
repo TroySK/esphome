@@ -252,7 +252,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   bool debug_output_{false};
   int update_phase_{0};
   uint32_t last_request_time_{0};
-  static const uint32_t REQUEST_INTERVAL_MS = 5;
+  static const uint32_t REQUEST_INTERVAL_MS = 100;
   void send_next_update_request();
 };
 
