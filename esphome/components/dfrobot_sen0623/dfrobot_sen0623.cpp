@@ -1061,11 +1061,14 @@ namespace esphome
 
         void DfrobotSen0623Component::drain_uart()
         {
+            static const uint8_t MAX_PACKETS_PER_CALL = 16;
             uint8_t packetData[100];
-            while (this->available()) {
+            uint8_t processed = 0;
+            while (this->available() && processed < MAX_PACKETS_PER_CALL) {
                 uint8_t len = this->read_packet(packetData);
                 if (len > 0) {
                     this->process_packet(packetData, len);
+                    processed++;
                 } else {
                     break;
                 }
