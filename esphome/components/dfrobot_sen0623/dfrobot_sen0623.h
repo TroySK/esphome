@@ -249,7 +249,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   // Non-blocking update state machine
   bool pending_update_{false};
   bool switch_request_rate_{false};
-  bool debug_output_{true};
+  bool debug_output_{false};
   int update_phase_{0};
   uint32_t last_request_time_{0};
   static const uint32_t REQUEST_INTERVAL_MS = 5;
