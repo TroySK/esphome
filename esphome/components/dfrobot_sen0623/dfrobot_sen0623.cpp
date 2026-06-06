@@ -580,12 +580,14 @@ namespace esphome
             return len;
         }
 
-        uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation) {
-            // Reduced timeout to prevent watchdog issues
-            uint8_t ths = 32;  // Reduced from 128 to 32 (max 1.6 seconds instead of 6.4)
+        uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation, uint32_t timeout_ms) {
+            // ths bounds how many other valid packets we will skip past while
+            // looking for the one we want; the time bound protects against an
+            // RX-storm from the sensor pinning the loop.
+            uint8_t ths = 32;
             uint32_t start_time = millis();
-            
-            while(ths > 0 && (millis() - start_time) < 2000) {  // Add 2 second timeout
+
+            while(ths > 0 && (millis() - start_time) < timeout_ms) {
                 uint8_t packetData[100]; // adjust size as needed
                 uint8_t len = this->read_packet(packetData);
 
@@ -1002,10 +1004,10 @@ namespace esphome
         void DfrobotSen0623Component::setup()
         {
             ESP_LOGI(TAG, "WAITING FOR INIT");
-            delay(500);  // Reduced from 1000ms
+            delay(200);
 
             this->request(OP_INIT);
-            uint8_t result = this->wait_for_packet(OP_INIT);
+            uint8_t result = this->wait_for_packet(OP_INIT, 500);
             if (result != 0xf5) {
                 ESP_LOGI(TAG, "WE ARE IN BUSINESS");
                 if (this->status_text_sensor_ != nullptr) {
@@ -1016,12 +1018,10 @@ namespace esphome
                 }
                 
                 this->request(OP_REQ_MODE);
-                delay(20);
-                this->wait_for_packet(OP_REQ_MODE);
-                
+                this->wait_for_packet(OP_REQ_MODE, 500);
+
                 this->request(OP_RST_SENSOR);
-                delay(20);
-                this->wait_for_packet(OP_RST_SENSOR);
+                this->wait_for_packet(OP_RST_SENSOR, 500);
                 delay(200);
 
                 this->apply_install_config();
