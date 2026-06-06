@@ -42,7 +42,7 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
 
   bool process_packet(uint8_t *packetData, size_t len);
 
-  uint8_t wait_for_packet(std::pair<uint8_t, uint8_t> operation);
+  uint8_t wait_for_packet(std::pair<uint8_t, uint8_t> operation, uint32_t timeout_ms = 2000);
   uint8_t read_packet(uint8_t *packetData);
 
   void print_data(std::string tag, const uint8_t *bytes, size_t len);
