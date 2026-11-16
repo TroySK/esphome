@@ -1,5 +1,6 @@
 #include "dfrobot_sen0623.h"
 
+#include <cinttypes>
 #include <cstring>
 
 #include "esphome/core/application.h"
@@ -825,7 +826,7 @@ namespace esphome
                         ESP_LOGI(TAG, "Processing STATIC_RESIDENCY_TIME or FALL_TIME, dataLen=%d", dataLen);
                         if (dataLen >= 4) {
                             uint32_t val = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) | data[3];
-                            ESP_LOGI(TAG, "Static residency time value: %u", val);
+                            ESP_LOGI(TAG, "Static residency time value: %" PRIu32, val);
                             if (this->static_residency_time_sensor_ != nullptr) {
                                 this->static_residency_time_sensor_->publish_state(val);
                             }
