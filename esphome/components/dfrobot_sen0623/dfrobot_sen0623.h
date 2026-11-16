@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 
@@ -254,6 +256,13 @@ class DfrobotSen0623Component : public uart::UARTDevice, public PollingComponent
   uint32_t last_request_time_{0};
   static const uint32_t REQUEST_INTERVAL_MS = 100;
   void send_next_update_request();
+
+  // Receive accumulator: a frame can arrive across two loop passes.
+  static constexpr uint16_t MAX_DATA_LEN = 64;
+  static constexpr size_t MAX_PACKET_LEN = 6 + MAX_DATA_LEN + 3;  // header, length, checksum, footer
+  std::array<uint8_t, MAX_PACKET_LEN> rx_buffer_{};
+  size_t rx_len_{0};
+  void drop_rx_bytes_(size_t count);
 };
 
 }  // namespace dfrobot_sen0623

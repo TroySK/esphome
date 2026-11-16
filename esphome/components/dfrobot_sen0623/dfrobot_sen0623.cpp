@@ -1,4 +1,7 @@
 #include "dfrobot_sen0623.h"
+
+#include <cstring>
+
 #include "esphome/core/application.h"
 #include "esphome/core/log.h"
 
@@ -555,30 +558,103 @@ namespace esphome
             }
         }
 
+        void DfrobotSen0623Component::drop_rx_bytes_(size_t count)
+        {
+            if (count >= this->rx_len_)
+            {
+                this->rx_len_ = 0;
+                return;
+            }
+            this->rx_len_ -= count;
+            std::memmove(this->rx_buffer_.data(), this->rx_buffer_.data() + count, this->rx_len_);
+        }
+
         uint8_t DfrobotSen0623Component::read_packet(uint8_t *packetData)
         {
-            if (!this->available()) {
-                return 0;
-            }
-            uint8_t len = 0;
-            uint8_t byte;
-            const size_t max_len = 100;
-
-            while (this->available() && this->read_byte(&byte) && len < max_len)
+            // Bytes accumulate until a whole frame is present: a reply can be
+            // split across two loop passes, and dropping the partial frame
+            // loses the reading. The frame end comes from the length field,
+            // not the footer, because the payload is binary and may itself
+            // contain 0x54 0x43.
+            while (this->rx_len_ < this->rx_buffer_.size() && this->available())
             {
-                packetData[len++] = byte;
-                if (len >= 2 && packetData[len - 2] == 0x54 && packetData[len - 1] == 0x43)
+                uint8_t byte;
+                if (!this->read_byte(&byte))
                 {
                     break;
                 }
+                this->rx_buffer_[this->rx_len_++] = byte;
             }
 
-            if (this->debug_output_ && len > 0)
+            while (this->rx_len_ > 0)
             {
-                this->print_data("<<", packetData, len);
+                // Drop anything in front of the 0x53 0x59 header.
+                size_t header = 0;
+                while (header + 1 < this->rx_len_ &&
+                       !(this->rx_buffer_[header] == 0x53 && this->rx_buffer_[header + 1] == 0x59))
+                {
+                    header++;
+                }
+                if (header + 1 >= this->rx_len_)
+                {
+                    // No header yet; keep a trailing 0x53 in case its 0x59 is still on the wire.
+                    if (this->rx_buffer_[this->rx_len_ - 1] == 0x53)
+                    {
+                        this->rx_buffer_[0] = 0x53;
+                        this->rx_len_ = 1;
+                    }
+                    else
+                    {
+                        this->rx_len_ = 0;
+                    }
+                    return 0;
+                }
+                this->drop_rx_bytes_(header);
+
+                if (this->rx_len_ < 6)
+                {
+                    return 0;  // the length field is still on its way
+                }
+
+                const uint16_t data_len = ((uint16_t) this->rx_buffer_[4] << 8) | this->rx_buffer_[5];
+                if (data_len > MAX_DATA_LEN)
+                {
+                    ESP_LOGW(TAG, "Packet dataLen %u exceeds buffer (%u); dropping", data_len, (unsigned) MAX_DATA_LEN);
+                    this->drop_rx_bytes_(1);
+                    continue;
+                }
+
+                const size_t frame_len = 6 + data_len + 3;  // header, length, checksum, footer
+                if (this->rx_len_ < frame_len)
+                {
+                    return 0;  // the rest of the frame is still on its way
+                }
+
+                uint8_t csum = 0;
+                for (size_t i = 0; i < 6 + data_len; i++)
+                {
+                    csum += this->rx_buffer_[i];
+                }
+
+                if (this->rx_buffer_[frame_len - 2] != 0x54 || this->rx_buffer_[frame_len - 1] != 0x43 ||
+                    csum != this->rx_buffer_[frame_len - 3])
+                {
+                    this->drop_rx_bytes_(1);  // not a frame after all, resynchronise
+                    continue;
+                }
+
+                std::memcpy(packetData, this->rx_buffer_.data(), frame_len);
+                this->drop_rx_bytes_(frame_len);
+
+                if (this->debug_output_)
+                {
+                    this->print_data("<<", packetData, frame_len);
+                }
+
+                return (uint8_t) frame_len;
             }
 
-            return len;
+            return 0;
         }
 
         uint8_t DfrobotSen0623Component::wait_for_packet(std::pair<uint8_t, uint8_t> operation, uint32_t timeout_ms) {
@@ -606,7 +682,6 @@ namespace esphome
 
         bool DfrobotSen0623Component::process_packet(uint8_t *packetData, size_t len)
         {
-            static const size_t MAX_DATA_LEN = 64;
             // Process only valid packets
             if (len > 5)
             {
@@ -636,12 +711,14 @@ namespace esphome
                     std::pair<uint8_t, uint8_t> operation = {packetData[2], packetData[3]};
 
                     if (operation == OP_REQ_HEART_RATE) {
-                        if (data[0] > 0 && this->heart_rate_sensor_ != nullptr) {
+                        // 0 means nobody detected; publish it so the reading stops
+                        // being stale instead of silently keeping the last value.
+                        if (dataLen >= 1 && this->heart_rate_sensor_ != nullptr) {
                             this->heart_rate_sensor_->publish_state(data[0]);
                         }
                     } else 
                     if (operation == OP_REQ_BREATH_RATE) {
-                        if (data[0] > 0 && this->breath_rate_sensor_ != nullptr) {
+                        if (dataLen >= 1 && this->breath_rate_sensor_ != nullptr) {
                             this->breath_rate_sensor_->publish_state(data[0]);
                         }
                     } else 
@@ -1068,7 +1145,8 @@ namespace esphome
             static const uint8_t MAX_PACKETS_PER_CALL = 16;
             uint8_t packetData[100];
             uint8_t processed = 0;
-            while (this->available() && processed < MAX_PACKETS_PER_CALL) {
+            // Buffered bytes can already hold a complete frame even when the line is quiet.
+            while ((this->available() || this->rx_len_ > 0) && processed < MAX_PACKETS_PER_CALL) {
                 uint8_t len = this->read_packet(packetData);
                 if (len > 0) {
                     this->process_packet(packetData, len);
