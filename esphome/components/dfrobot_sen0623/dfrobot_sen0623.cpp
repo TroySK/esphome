@@ -1,4 +1,5 @@
 #include "dfrobot_sen0623.h"
+#include "esphome/core/application.h"
 #include "esphome/core/log.h"
 
 #include "esphome/core/helpers.h"
@@ -1025,6 +1026,13 @@ namespace esphome
                 delay(200);
 
                 this->apply_install_config();
+
+                // The request rate switch starts on, so the front-end must be told.
+#ifdef USE_SWITCH
+                if (this->request_rate_switch_ != nullptr) {
+                    this->request_rate_switch_->publish_state(this->switch_request_rate_);
+                }
+#endif
             } else {
                 this->mark_failed();
             }
@@ -1073,8 +1081,10 @@ namespace esphome
 
         void DfrobotSen0623Component::update()
         {
-            if (this->switch_request_rate_)
+            // Only a finished cycle can be restarted; a running cycle keeps its own pace.
+            if (this->switch_request_rate_ && this->update_phase_ == 0)
             {
+                this->last_request_time_ = 0;  // send the first request on the next loop pass
                 this->pending_update_ = true;
             }
         }
@@ -1122,21 +1132,16 @@ namespace esphome
                     return;
             }
             this->update_phase_++;
-            this->last_request_time_ = millis();
+            this->last_request_time_ = App.get_loop_component_start_time();
         }
 
         void DfrobotSen0623Component::loop()
         {
-            if (this->pending_update_ && this->update_phase_ == 0) {
-                this->update_phase_ = 1;
-                this->last_request_time_ = 0;  // Send first request immediately
-            }
-
-            if (this->pending_update_ && this->update_phase_ > 0) {
-                uint32_t now = millis();
-                if (now - this->last_request_time_ >= REQUEST_INTERVAL_MS || this->last_request_time_ == 0) {
-                    this->send_next_update_request();
-                }
+            if (this->pending_update_ &&
+                (this->last_request_time_ == 0 ||
+                 App.get_loop_component_start_time() - this->last_request_time_ >= REQUEST_INTERVAL_MS))
+            {
+                this->send_next_update_request();
             }
 
             this->drain_uart();
